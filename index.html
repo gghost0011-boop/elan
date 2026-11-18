@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ma journée</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2f6fed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ma journée">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--text:#1d1d1b;--muted:#6b6b66;--line:#e4e2db;--accent:#2f6fed;--hi:#d9432f;--mid:#e0a020;--lo:#3a9d5d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161615;--card:#222221;--text:#f0efea;--muted:#a09f98;--line:#35342f;--accent:#6b9bff;--hi:#ff7a66;--mid:#f0b840;--lo:#5ccb86;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#161615;--card:#222221;--text:#f0efea;--muted:#a09f98;--line:#35342f;--accent:#6b9bff;--hi:#ff7a66;--mid:#f0b840;--lo:#5ccb86;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0;font-size:1.6rem}
+.date{color:var(--muted);text-transform:capitalize;margin-bottom:14px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--lo);transition:width .3s}
+.stat{font-size:.85rem;color:var(--muted);margin:6px 0 16px}
+form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+form input,form select,form button{font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);min-width:0}
+form .full{grid-column:1/-1}
+form button{background:var(--accent);color:#fff;border:0;font-weight:600;cursor:pointer}
+.task{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--lo);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.task.p1{border-left-color:var(--hi)}.task.p2{border-left-color:var(--mid)}
+.task.now{outline:2px solid var(--accent)}
+.task.done .t{text-decoration:line-through;color:var(--muted)}
+.task input{width:22px;height:22px;margin-top:2px;flex:none}
+.body{flex:1;min-width:0}
+.time{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.t{word-break:break-word}
+.del{background:none;border:0;color:var(--muted);font-size:1.3rem;cursor:pointer;padding:0 4px}
+.empty{text-align:center;color:var(--muted);padding:24px 0}
+.foot{text-align:center;margin-top:16px}
+.foot button{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>Ma journée</h1>
+<div class="date" id="date"></div>
+<div class="bar"><i id="fill"></i></div>
+<div class="stat" id="stat"></div>
+<form id="f">
+<input class="full" id="title" placeholder="Nouvelle tâche…" required>
+<input type="time" id="start" value="09:00" required>
+<select id="dur">
+<option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option>
+<option value="60" selected>1 h</option><option value="90">1 h 30</option><option value="120">2 h</option><option value="180">3 h</option>
+</select>
+<select id="pri" class="full">
+<option value="1">Priorité haute</option><option value="2" selected>Priorité moyenne</option><option value="3">Priorité basse</option>
+</select>
+<button class="full" type="submit">Ajouter au planning</button>
+</form>
+<div id="list"></div>
+<div class="foot"><button id="clear">Vider les tâches terminées</button></div>
+</main>
+<script>
+var KEY="planner-v1",tasks=[];
+try{tasks=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){tasks=[]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(tasks))}catch(e){}}
+function mins(s){var p=s.split(":");return +p[0]*60+ +p[1]}
+function fmt(m){m=m%1440;return String(Math.floor(m/60)).padStart(2,"0")+"h"+String(m%60).padStart(2,"0")}
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function render(){
+  var d=new Date(),nowM=d.getHours()*60+d.getMinutes();
+  document.getElementById("date").textContent=d.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"});
+  tasks.sort(function(a,b){return mins(a.start)-mins(b.start)});
+  var done=tasks.filter(function(t){return t.done}).length;
+  document.getElementById("fill").style.width=(tasks.length?done/tasks.length*100:0)+"%";
+  document.getElementById("stat").textContent=done+" sur "+tasks.length+" terminée"+(done>1?"s":"");
+  var el=document.getElementById("list");
+  if(!tasks.length){el.innerHTML='<div class="empty">Aucune tâche. Ajoute ta première ci-dessus.</div>';return}
+  el.innerHTML=tasks.map(function(t){
+    var s=mins(t.start),now=nowM>=s&&nowM<s+t.dur&&!t.done;
+    return '<div class="task p'+t.pri+(t.done?" done":"")+(now?" now":"")+'">'+
+      '<input type="checkbox" data-c="'+t.id+'"'+(t.done?" checked":"")+'>'+
+      '<div class="body"><div class="time">'+fmt(s)+" – "+fmt(s+t.dur)+(now?" · en cours":"")+'</div><div class="t">'+esc(t.title)+'</div></div>'+
+      '<button class="del" data-d="'+t.id+'" aria-label="Supprimer">×</button></div>'}).join("");
+}
+document.getElementById("f").addEventListener("submit",function(e){
+  e.preventDefault();
+  tasks.push({id:Date.now(),title:title.value.trim(),start:start.value,dur:+dur.value,pri:+pri.value,done:false});
+  title.value="";
+  var n=mins(start.value)+ +dur.value;start.value=String(Math.floor(n/60)%24).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
+  save();render();
+});
+document.getElementById("list").addEventListener("click",function(e){
+  var c=e.target.getAttribute("data-c"),x=e.target.getAttribute("data-d");
+  if(c){tasks.forEach(function(t){if(t.id==c)t.done=e.target.checked})}
+  else if(x){tasks=tasks.filter(function(t){return t.id!=x})}
+  else return;
+  save();render();
+});
+document.getElementById("clear").addEventListener("click",function(){tasks=tasks.filter(function(t){return !t.done});save();render()});
+render();setInterval(render,60000);
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script>
+</body>
+</html>
