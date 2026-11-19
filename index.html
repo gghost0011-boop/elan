@@ -100,7 +100,7 @@ form select:disabled{opacity:.35}
 </main>
 <div id="toast"></div>
 <script>
-var K="planner-v2",S={tasks:[],tpls:[],gen:{}},view="d",editId=null,opened=null,notified={},DUR=[15,30,45,60,90,120,180,240,300,360,480,600,720],ST={done:"Terminée",int:"Interrompue",stop:"Arrêtée"},CATS=["Cours","Business","Sport","Perso","Autre"],WD=["L","M","M","J","V","S","D"],undo=null,pm=null,q="",fc="",tl=0,sh=0,opt=0,sel=null;
+var K="planner-v2",S={tasks:[],tpls:[],gen:{}},view="d",editId=null,opened=null,notified={},DUR=[15,30,45,60,90,120,180,240,300,360,480,600,720],ST={done:"Terminée",int:"Interrompue",stop:"Arrêtée"},CATS=["Cours","Business","Travail","Sport","Perso","Autre"],WD=["L","M","M","J","V","S","D"],undo=null,pm=null,q="",fc="",tl=0,sh=0,opt=0,sel=null;
 function p2(n){return String(n).padStart(2,"0")}
 function iso(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
 function parse(s){var a=s.split("-");return new Date(+a[0],a[1]-1,+a[2])}
@@ -127,7 +127,7 @@ forest:["Forêt","#f1f5ee","#fff","#dbe5d4","#2e7d46","#121a14","#1a251d","#2a3b
 twilight:["Crépuscule","#f4f1f8","#fff","#e1daec","#7048c8","#17141f","#211d2c","#342d45","#a98bff","#1a0d3b"],
 midnight:["Minuit","#f2f2f2","#fff","#dddddd","#222222","#000000","#111111","#262626","#6b9bff","#000000"],
 brown:["Marron","#f4ede6","#fffaf5","#e4d5c7","#7b4a2d","#1c1511","#261d18","#3c2e25","#c58a5e","#231106"]},
-CATC={Cours:"#4c8bf5",Business:"#e07b39",Sport:"#2fa36b",Perso:"#b85fd0",Autre:"#8a8f98"};
+CATC={Cours:"#4c8bf5",Business:"#e07b39",Travail:"#d4568a",Sport:"#2fa36b",Perso:"#b85fd0",Autre:"#8a8f98"};
 function cc(c){return CATC[c]||"#8a8f98"}
 function dot(c){return c?'<i class="cd" style="background:'+cc(c)+'"></i>':""}
 function isDark(){try{return S.theme=="dark"||(!S.theme&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}catch(e){return false}}
