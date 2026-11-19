@@ -24,6 +24,8 @@ button,input,select{font:inherit;color:inherit}
 .tabs,.nav,.tools{display:flex;gap:6px;margin-bottom:10px;align-items:center}
 .tabs button,.nav button,.tools button,.tools input{padding:9px 10px;border:1px solid var(--line);background:var(--card);border-radius:10px;cursor:pointer}
 .tabs button{flex:1}.tabs .on{background:var(--accent);color:var(--act,#fff);border-color:var(--accent)}
+.nav.solo #pv,.nav.solo #nx,.nav.solo #td{display:none}
+.nav.solo b{text-align:left;font-size:1.15rem}
 .nav b{flex:1;text-align:center;text-transform:capitalize}
 .tools{flex-wrap:wrap;margin-top:14px}.tools .on{border-color:var(--lo);color:var(--lo)}
 .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
@@ -123,7 +125,6 @@ var STY={classic:["Classique"],
 ocean:["Océan","#eef6f6","#fff","#d3e4e4","#0e8a8a","#0f1a1b","#172526","#264041","#3cc4c4","#062222"],
 forest:["Forêt","#f1f5ee","#fff","#dbe5d4","#2e7d46","#121a14","#1a251d","#2a3b2f","#5cc47d","#07210f"],
 twilight:["Crépuscule","#f4f1f8","#fff","#e1daec","#7048c8","#17141f","#211d2c","#342d45","#a98bff","#1a0d3b"],
-sand:["Sable","#f8f1e6","#fffaf2","#eadcc3","#c9741c","#1d1710","#271f15","#3d3122","#f0a04b","#2b1700"],
 midnight:["Minuit","#f2f2f2","#fff","#dddddd","#222222","#000000","#111111","#262626","#6b9bff","#000000"],
 brown:["Marron","#f4ede6","#fffaf5","#e4d5c7","#7b4a2d","#1c1511","#261d18","#3c2e25","#c58a5e","#231106"]},
 CATC={Cours:"#4c8bf5",Business:"#e07b39",Sport:"#2fa36b",Perso:"#b85fd0",Autre:"#8a8f98"};
@@ -131,6 +132,7 @@ function cc(c){return CATC[c]||"#8a8f98"}
 function dot(c){return c?'<i class="cd" style="background:'+cc(c)+'"></i>':""}
 function isDark(){try{return S.theme=="dark"||(!S.theme&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}catch(e){return false}}
 function applyTheme(){
+  if(S.style&&!STY[S.style])delete S.style;
   var r=document.documentElement,st=STY[S.style]||STY.classic,dk=isDark(),ks=["bg","card","line","accent","act"];
   if(S.theme)r.setAttribute("data-theme",S.theme);else r.removeAttribute("data-theme");
   ks.forEach(function(k){r.style.removeProperty("--"+k)});
@@ -185,6 +187,8 @@ function dayHTML(td){
 function render(){
   var td=iso(new Date()),el=document.getElementById("v"),L=document.getElementById("lbl"),d=parse(cur),h="";
   document.querySelectorAll(".tabs button").forEach(function(b){b.className=b.dataset.v==view?"on":""});
+  document.querySelector(".nav").className="nav"+(view=="s"?" solo":"");
+  document.getElementById("td").textContent={d:"Aujourd’hui",w:"Cette semaine",m:"Ce mois-ci",b:"Ce mois-ci"}[view]||"";
   if(view=="d"){L.textContent=d.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"});h=dayHTML(td)}
   else if(view=="w"){
     var mo=new Date(d);mo.setDate(d.getDate()-((d.getDay()+6)%7));L.textContent="Semaine du "+mo.toLocaleDateString("fr-CA",{day:"numeric",month:"short"});
