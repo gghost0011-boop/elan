@@ -88,6 +88,33 @@ form select:disabled{opacity:.35}
 .cb i{display:block;width:100%;background:var(--lo);border-radius:3px 3px 0 0}
 .col small{font-size:.6rem;color:var(--muted);margin-top:2px;height:10px}
 .why{background:none;border:0;padding:3px 0;cursor:pointer;text-align:left;color:inherit;display:block}
+main{padding-bottom:96px}
+.nav b{font-size:1.1rem}
+.hd{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.ring{width:64px;height:64px;flex:none}
+.hs{font-weight:700}.hb{font-size:.92rem;color:var(--muted);margin-top:2px}.hb b{color:var(--text)}
+.task{border-left:1px solid var(--line);border-radius:14px;padding:12px 12px 12px 18px;position:relative;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.task::before{content:"";position:absolute;left:7px;top:12px;bottom:12px;width:4px;border-radius:4px;background:var(--lo)}
+.task.p1::before{background:var(--hi)}.task.p2::before{background:var(--mid)}
+.task.done{opacity:.6}
+.row>input[data-act]{appearance:none;-webkit-appearance:none;width:26px;height:26px;border:2px solid var(--muted);border-radius:50%;margin-top:3px;cursor:pointer;transition:background .2s,transform .15s}
+.row>input[data-act]:checked{background:var(--lo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/70% no-repeat;border-color:var(--lo);transform:scale(1.08)}
+.tc{display:flex;flex-direction:column;min-width:46px;font-variant-numeric:tabular-nums}.tc b{font-size:.95rem}.tc small{color:var(--muted);font-size:.75rem}
+.t{font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.78rem;color:var(--muted);margin-top:2px}
+.chips .nw{color:var(--accent);font-weight:600}.chips .wr{color:var(--hi)}
+.grp{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 2px 6px}
+.nowl{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:.75rem;font-weight:600;margin:2px 0 10px}
+.nowl::before,.nowl::after{content:"";flex:1;height:2px;background:var(--accent);opacity:.5;border-radius:2px}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:10;background:var(--accent);color:var(--act,#fff);border:0;border-radius:99px;padding:14px 20px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);cursor:pointer}
+.wk{border-radius:14px}.wk.today{outline:2px solid var(--accent)}
+.wh span:first-child{text-transform:capitalize}.wc{color:var(--muted);font-size:.85rem}
+.wh em{font-style:normal;font-size:.7rem;background:var(--accent);color:var(--act,#fff);padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.wk .bar{height:5px;margin:0 0 8px}
+.wi{display:flex;gap:8px;align-items:center;border-left:0;padding:6px 6px 6px 12px;position:relative}
+.wi::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:4px;border-radius:4px;background:var(--lo)}
+.wi.p1::before{background:var(--hi)}.wi.p2::before{background:var(--mid)}.wi .ck{margin-left:auto;color:var(--muted)}
+.mc{border-radius:10px}.mc.today b{background:var(--accent);color:var(--act,#fff);border-radius:99px;padding:0 7px}
 .cd{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
 .stg{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:8px}
 .sty{display:flex;align-items:center;gap:8px;padding:10px;border:2px solid var(--line);border-radius:10px;cursor:pointer;font-size:.9rem}
@@ -201,16 +228,35 @@ function setHTML(){document.getElementById("lbl").textContent="Réglages";
 function formHTML(e,all){
   var last=all[all.length-1],dys=e.tp?((S.tpls.filter(function(x){return x.id==e.tp})[0]||{}).days||[0,1,2,3,4,5,6]):[];
   return'<div class="shd" data-act="cancel"></div><form id="f" class="sheet"><b class="full">'+(editId?"Modifier la tâche":"Nouvelle tâche")+'</b><input class="full" id="title" placeholder="Titre…" required value="'+esc(e.title||"")+'"><input type="time" id="start" required value="'+(e.start||(last?hhmm(mins(last.start)+last.dur):"09:00"))+'"><select id="dur"'+(e.dur===0?" disabled":"")+'>'+opts(DUR,e.dur||S.dd||60,dl)+'</select><label class="chk full"><input type="checkbox" id="pt"'+(e.dur===0?" checked":"")+'> Heure précise (sans durée)</label><select id="pri">'+opts([1,2,3],e.pri||2,function(v){return["","Priorité haute","Priorité moyenne","Priorité basse"][v]})+'</select><select id="cat">'+opts([""].concat(CATS),e.cat||fc,function(v){return v||"Sans catégorie"})+'</select><input type="date" id="date" class="full" required value="'+(e.date||cur)+'"><div class="full"><span class="mut">Répéter les :</span> <span class="wd">'+WD.map(function(x,i){return'<label><input type="checkbox" id="rd'+i+'"'+(dys.indexOf(i)>-1?" checked":"")+'>'+x+'</label>'}).join("")+'</span></div><textarea class="full" id="note" rows="2" placeholder="Notes… (une ligne « - texte » crée une sous-tâche à cocher)">'+esc(e.note||"")+'</textarea><button class="full" type="submit">'+(editId?"Enregistrer":"Ajouter")+'</button><button class="full ghost" type="button" data-act="cancel">Annuler</button></form>'}
+function headHTML(all,td,nowM){
+  var dn=all.filter(function(t){return t.st=="done"}).length,n=all.length,C=2*Math.PI*24,txt;
+  var ring='<svg class="ring" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="var(--line)" stroke-width="6"/><circle cx="30" cy="30" r="24" fill="none" stroke="var(--lo)" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+((n?dn/n:0)*C).toFixed(1)+" "+C.toFixed(1)+'" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor">'+dn+"/"+n+'</text></svg>';
+  if(!n)txt="Aucune tâche prévue.";
+  else if(cur==td){var pend=all.filter(function(t){return!t.st}),nt=pend.filter(function(t){var s=mins(t.start);return nowM>=s&&nowM<s+(t.dur||5)})[0],nx=pend.filter(function(t){return mins(t.start)>nowM})[0];
+    txt=nt?"<b>Maintenant :</b> "+esc(nt.title)+(nt.dur?" · jusqu’à "+fmt(mins(nt.start)+nt.dur):""):nx?"<b>Prochaine :</b> "+esc(nx.title)+" à "+fmt(mins(nx.start)):!pend.length?"Tout est réglé pour aujourd’hui.":"Il reste des tâches en retard."}
+  else txt=n+" tâche"+(n>1?"s":"")+" prévue"+(n>1?"s":"");
+  return'<div class="hd">'+ring+'<div><div class="hs">'+dn+" sur "+n+" terminée"+(dn>1?"s":"")+'</div><div class="hb">'+txt+'</div></div></div>'}
+function cardHTML(t,all,td,nowM){
+  var s=mins(t.start),now=cur==td&&!t.st&&nowM>=s&&nowM<s+(t.dur||5),ov=over(t,all).length,
+  chk=sel?'<input type="checkbox" data-act="pick" data-id="'+t.id+'"'+(sel[t.id]?" checked":"")+'>':'<input type="checkbox" data-act="done" data-id="'+t.id+'"'+(t.st=="done"?" checked":"")+'>';
+  return'<div class="task p'+t.pri+" "+(t.st||"")+(now?" now":"")+'" data-id="'+t.id+'"><div class="row">'+chk+'<div class="tc"><b>'+fmt(s)+'</b>'+(t.dur?"<small>"+fmt(s+t.dur)+"</small>":"")+'</div><div class="body"><div class="t">'+esc(t.title)+'</div><div class="chips">'+(t.cat?"<span>"+dot(t.cat)+esc(t.cat)+"</span>":"")+(now?'<span class="nw">en cours</span>':"")+(ov?'<span class="wr">⚠ chevauche</span>':"")+(t.tp?"<span>↻ répétée</span>":"")+'</div>'+noteHTML(t)+(t.st?'<div class="st">'+ST[t.st]+" à "+t.at+(t.why?" · "+esc(t.why):"")+'</div>':"")+(t.hist||[]).map(function(h){return'<div class="mut">↳ '+ST[h.s].toLowerCase()+" à "+h.a+(h.w?" · "+esc(h.w):"")+", reprise à "+h.b+'</div>'}).join("")+'</div><button class="mo" data-act="open" data-id="'+t.id+'" aria-label="Options">⋯</button></div>'+(opened==t.id?'<div class="acts"><button data-act="done" data-id="'+t.id+'">'+(t.st=="done"?"Rouvrir":"Terminée")+'</button>'+(t.st=="int"||t.st=="stop"?'<button data-act="resume" data-id="'+t.id+'">Reprendre</button>':'<button data-act="int" data-id="'+t.id+'">Interrompue</button><button data-act="stop" data-id="'+t.id+'">Arrêtée</button>')+'<button data-act="edit" data-id="'+t.id+'">Modifier</button><button data-act="del" data-id="'+t.id+'">Supprimer</button></div>':"")+'</div>'}
 function dayHTML(td){
-  var all=day(cur),e=(editId&&find(editId))||{},dn=all.filter(function(t){return t.st=="done"}).length,nowM=new Date().getHours()*60+new Date().getMinutes(),
+  var all=day(cur),e=(editId&&find(editId))||{},nowM=new Date().getHours()*60+new Date().getMinutes(),
   l=all.filter(function(t){return(!fc||t.cat==fc)&&(!q||(t.title+" "+(t.note||"")).toLowerCase().indexOf(q.toLowerCase())>-1)}),ns=sel?Object.keys(sel).filter(function(k){return sel[k]}).length:0;
-  var h='<div class="bar"><i style="width:'+(all.length?dn/all.length*100:0)+'%"></i></div><div class="stat">'+dn+' sur '+all.length+' terminée'+(dn>1?"s":"")+'</div>';
+  var h=headHTML(all,td,nowM);
   if(sel)h+='<div class="card"><b>'+ns+'</b> sélectionnée'+(ns>1?"s":"")+'<div class="tools" style="margin:8px 0 0"><button data-act="selok">Copier</button><button data-act="selall">Tout</button><button data-act="selno">Annuler</button></div></div>';
-  h+=!l.length?'<div class="mut" style="text-align:center;padding:20px 0">Aucune tâche à afficher.</div>':tl?tlHTML(l):l.map(function(t){
-    var s=mins(t.start),now=cur==td&&!t.st&&nowM>=s&&nowM<s+(t.dur||5),ov=over(t,all).length;
-    return'<div class="task p'+t.pri+" "+(t.st||"")+(now?" now":"")+'" data-id="'+t.id+'"><div class="row">'+(sel?'<input type="checkbox" data-act="pick" data-id="'+t.id+'"'+(sel[t.id]?" checked":"")+'>':'<input type="checkbox" data-act="done" data-id="'+t.id+'"'+(t.st=="done"?" checked":"")+'>')+'<div class="body"><div class="time">'+(t.dur?fmt(s)+" – "+fmt(s+t.dur):fmt(s))+(t.cat?" · "+dot(t.cat)+esc(t.cat):"")+(now?" · en cours":"")+(ov?" · ⚠ chevauche":"")+(t.tp?" · ↻":"")+'</div><div class="t">'+esc(t.title)+'</div>'+noteHTML(t)+(t.st?'<div class="st">'+ST[t.st]+" à "+t.at+(t.why?" · "+esc(t.why):"")+'</div>':"")+(t.hist||[]).map(function(h){return'<div class="mut">↳ '+ST[h.s].toLowerCase()+" à "+h.a+(h.w?" · "+esc(h.w):"")+", reprise à "+h.b+'</div>'}).join("")+'</div><button class="mo" data-act="open" data-id="'+t.id+'" aria-label="Options">⋯</button></div>'+(opened==t.id?'<div class="acts"><button data-act="done" data-id="'+t.id+'">'+(t.st=="done"?"Rouvrir":"Terminée")+'</button>'+(t.st=="int"||t.st=="stop"?'<button data-act="resume" data-id="'+t.id+'">Reprendre</button>':'<button data-act="int" data-id="'+t.id+'">Interrompue</button><button data-act="stop" data-id="'+t.id+'">Arrêtée</button>')+'<button data-act="edit" data-id="'+t.id+'">Modifier</button><button data-act="del" data-id="'+t.id+'">Supprimer</button></div>':"")+'</div>'}).join("");
-  h+='<div class="tools"><button class="add" data-act="add">+ Ajouter une tâche</button>'+(S.clip&&S.clip.length?'<button data-act="paste">Coller ('+S.clip.length+')</button><button data-act="clip0" aria-label="Annuler la copie">✕</button>':"")+'</div><button class="optb" data-act="opt">Options '+(opt?"▴":"▾")+'</button>';
+  if(!l.length)h+='<div class="mut" style="text-align:center;padding:20px 0">Aucune tâche à afficher.</div>';
+  else if(tl)h+=tlHTML(l);
+  else{
+    var grp=l.length>=5,last="",isT=cur==td&&!fc&&!q,fa=isT?l.filter(function(t){return mins(t.start)>nowM})[0]:null,hb=isT&&l.some(function(t){return mins(t.start)<=nowM});
+    l.forEach(function(t){var s=mins(t.start),g=s<300?"Nuit":s<720?"Matin":s<1080?"Après-midi":"Soir";
+      if(grp&&g!=last){h+='<div class="grp">'+g+'</div>';last=g}
+      if(fa&&hb&&t===fa)h+='<div class="nowl"><span>Maintenant · '+fmt(nowM)+'</span></div>';
+      h+=cardHTML(t,all,td,nowM)})}
+  if(S.clip&&S.clip.length)h+='<div class="tools"><button data-act="paste">Coller ('+S.clip.length+')</button><button data-act="clip0" aria-label="Annuler la copie">✕</button></div>';
+  h+='<button class="optb" data-act="opt">Options '+(opt?"▴":"▾")+'</button>';
   if(opt)h+='<div class="card flt"><div class="tools" style="margin-top:0"><input id="q" placeholder="Rechercher…" value="'+esc(q)+'"><select id="fc">'+opts([""].concat(CATS),fc,function(v){return v||"Toutes catégories"})+'</select></div><div class="tools"><button data-act="tl" class="'+(tl?"on":"")+'">Blocs horaires</button><button data-act="selmode">Copier des tâches</button><button data-act="exp">Exporter</button><button data-act="rem" class="'+(S.rem?"on":"")+'">Rappels '+(S.rem?"activés":"désactivés")+'</button><button data-act="pm">'+(pm?"Arrêter le minuteur":"Minuteur 25/5")+'</button><span id="pmv" class="mut"></span></div><div class="mut">Glisse une tâche vers la gauche (ou ⋯) pour ses options.</div></div>';
+  h+='<button class="fab" data-act="add">+ Ajouter</button>';
   if(sh||editId)h+=formHTML(e,all);
   return h}
 function render(){
@@ -221,8 +267,8 @@ function render(){
   if(view=="d"){L.textContent=d.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric",month:"long"});h=dayHTML(td)}
   else if(view=="w"){
     var mo=new Date(d);mo.setDate(d.getDate()-((d.getDay()+6)%7));L.textContent="Semaine du "+mo.toLocaleDateString("fr-CA",{day:"numeric",month:"short"});
-    for(var i=0;i<7;i++){var x=new Date(mo);x.setDate(mo.getDate()+i);var ds=iso(x),l=day(ds);
-      h+='<div class="wk'+(ds==td?" today":"")+'"><button class="wh" data-go="'+ds+'">'+x.toLocaleDateString("fr-CA",{weekday:"long",day:"numeric"})+'<span>+</span></button>'+(l.length?l.map(function(t){return'<div class="wi p'+t.pri+(t.st=="done"?" done":"")+'" data-go="'+ds+'"><span class="time">'+fmt(mins(t.start))+'</span> '+dot(t.cat)+esc(t.title)+'</div>'}).join(""):'<div class="mut">Rien de prévu</div>')+'</div>'}}
+    for(var i=0;i<7;i++){var x=new Date(mo);x.setDate(mo.getDate()+i);var ds=iso(x),l=day(ds),dn=l.filter(function(t){return t.st=="done"}).length;
+      h+='<div class="wk'+(ds==td?" today":"")+'"><button class="wh" data-go="'+ds+'"><span><b>'+x.toLocaleDateString("fr-CA",{weekday:"long"})+"</b> "+x.getDate()+(ds==td?" <em>Aujourd’hui</em>":"")+'</span><span class="wc">'+(l.length?dn+"/"+l.length:"+")+'</span></button>'+(l.length?'<div class="bar"><i style="width:'+dn/l.length*100+'%"></i></div>'+l.map(function(t){return'<div class="wi p'+t.pri+(t.st=="done"?" done":"")+'" data-go="'+ds+'"><span class="time">'+fmt(mins(t.start))+"</span><span>"+dot(t.cat)+esc(t.title)+"</span>"+(t.st=="done"?'<span class="ck">✓</span>':t.st?'<span class="ck">'+(t.st=="int"?"⏸":"■")+"</span>":"")+"</div>"}).join(""):'<div class="mut">Rien de prévu</div>')+"</div>"}}
   else if(view=="b")h=statsHTML();
   else if(view=="s")h=setHTML();
   else{
