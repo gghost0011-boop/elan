@@ -115,6 +115,9 @@ main{padding-bottom:96px}
 .wi::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:4px;border-radius:4px;background:var(--lo)}
 .wi.p1::before{background:var(--hi)}.wi.p2::before{background:var(--mid)}.wi .ck{margin-left:auto;color:var(--muted)}
 .mc{border-radius:10px}.mc.today b{background:var(--accent);color:var(--act,#fff);border-radius:99px;padding:0 7px}
+.wsum{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:.82rem;color:var(--muted)}
+.ws{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46%}
+.wgo{display:block;margin:6px 0 2px auto;background:none;border:0;color:var(--accent);cursor:pointer;font-size:.85rem}
 .cd{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
 .stg{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:8px}
 .sty{display:flex;align-items:center;gap:8px;padding:10px;border:2px solid var(--line);border-radius:10px;cursor:pointer;font-size:.9rem}
@@ -133,7 +136,7 @@ main{padding-bottom:96px}
 </main>
 <div id="toast"></div>
 <script>
-var LANG="fr",LOC="fr-CA",K="planner-v2",S={tasks:[],tpls:[],gen:{}},view="d",editId=null,opened=null,notified={},DUR=[15,30,45,60,90,120,180,240,300,360,480,600,720],ST={done:"⟦Terminée⟧",int:"⟦Interrompue⟧",stop:"⟦Arrêtée⟧"},CATS=["Cours","Business","Travail","Sport","Perso","Autre"],WD=["L","M","M","J","V","S","D"],undo=null,pm=null,q="",fc="",tl=0,sh=0,opt=0,sel=null,sp="m",sdet=null;
+var LANG="fr",LOC="fr-CA",K="planner-v2",S={tasks:[],tpls:[],gen:{}},view="d",editId=null,opened=null,notified={},DUR=[15,30,45,60,90,120,180,240,300,360,480,600,720],ST={done:"⟦Terminée⟧",int:"⟦Interrompue⟧",stop:"⟦Arrêtée⟧"},CATS=["Cours","Business","Travail","Sport","Perso","Autre"],WD=["L","M","M","J","V","S","D"],undo=null,pm=null,q="",fc="",tl=0,sh=0,opt=0,sel=null,sp="m",sdet=null,wopen={};
 function p2(n){return String(n).padStart(2,"0")}
 function iso(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
 function parse(s){var a=s.split("-");return new Date(+a[0],a[1]-1,+a[2])}
@@ -155,7 +158,7 @@ function opts(a,sel,lab){return a.map(function(v){return'<option value="'+v+'"'+
 function nowHM(){var n=new Date();return fmt(n.getHours()*60+n.getMinutes())}
 function toast(x,cb){var t=document.getElementById("toast");t.textContent=mk(x);t.className="on"+(cb?" cb":"");t.onclick=cb?function(){cb();t.className=""}:null;clearTimeout(toast.h);toast.h=setTimeout(function(){t.className=""},cb?8000:5000)}
 var LANGS={fr:["Français","fr-CA","LMMJVSD"],en:["English","en-US","MTWTFSS"],es:["Español","es","LMXJVSD"]};
-var R=[["Maintenant","Now","Ahora"],["Jour","Day","Día"],["Semaine","Week","Semana"],["Mois","Month","Mes"],["Bilan","Stats","Resumen"],["Aujourd’hui","Today","Hoy"],["Cette semaine","This week","Esta semana"],["Ce mois-ci","This month","Este mes"],["Réglages","Settings","Ajustes"],["Semaine du","Week of","Semana del"],["au","to","al"],
+var R=[["Tout déplier","Expand all","Desplegar todo"],["Tout replier","Collapse all","Contraer todo"],["Ouvrir le jour","Open day","Abrir el día"],["Maintenant","Now","Ahora"],["Jour","Day","Día"],["Semaine","Week","Semana"],["Mois","Month","Mes"],["Bilan","Stats","Resumen"],["Aujourd’hui","Today","Hoy"],["Cette semaine","This week","Esta semana"],["Ce mois-ci","This month","Este mes"],["Réglages","Settings","Ajustes"],["Semaine du","Week of","Semana del"],["au","to","al"],
 ["Aucune tâche prévue.","No tasks planned.","No hay tareas previstas."],["Maintenant :","Now:","Ahora:"],["Prochaine :","Next:","Siguiente:"],["jusqu’à","until","hasta"],["à","at","a las"],["Tout est réglé pour aujourd’hui.","Everything is done for today.","Todo listo por hoy."],["Il reste des tâches en retard.","Some tasks are overdue.","Hay tareas atrasadas."],["{0} tâches prévues","{0} tasks planned","{0} tareas previstas"],["{0} tâche prévue","{0} task planned","{0} tarea prevista"],["{0} sur {1} terminées","{0} of {1} done","{0} de {1} hechas"],["{0} sur {1} terminée","{0} of {1} done","{0} de {1} hecha"],["sélectionnées","selected","seleccionadas"],["sélectionnée","selected","seleccionada"],
 ["en cours","in progress","en curso"],["⚠ chevauche","⚠ overlaps","⚠ se solapa"],["↻ répétée","↻ repeats","↻ repetida"],["Terminée","Done","Hecha"],["Interrompue","Interrupted","Interrumpida"],["Arrêtée","Stopped","Detenida"],["terminée","done","hecha"],["interrompue","interrupted","interrumpida"],["arrêtée","stopped","detenida"],["reprise à","resumed at","reanudada a las"],["Rouvrir","Reopen","Reabrir"],["Reprendre","Resume","Reanudar"],["Modifier","Edit","Editar"],["Supprimer","Delete","Eliminar"],
 ["Aucune tâche à afficher.","No tasks to show.","No hay tareas que mostrar."],["Coller ({0})","Paste ({0})","Pegar ({0})"],["Annuler la copie","Cancel copy","Cancelar copia"],["Options","Options","Opciones"],["Nuit","Night","Madrugada"],["Matin","Morning","Mañana"],["Après-midi","Afternoon","Tarde"],["Soir","Evening","Noche"],
@@ -276,6 +279,8 @@ function dayHTML(td){
   h+='<button class="fab" data-act="add">⟦+ Ajouter⟧</button>';
   if(sh||editId)h+=formHTML(e,all);
   return h}
+function wdays(){var d=parse(cur),mo=new Date(d),a=[];mo.setDate(d.getDate()-((d.getDay()+6)%7));for(var i=0;i<7;i++){var x=new Date(mo);x.setDate(mo.getDate()+i);a.push(iso(x))}return a}
+function wop(ds,td){return wopen[ds]!==undefined?wopen[ds]:ds==td}
 function render(){
   var td=iso(new Date()),el=document.getElementById("v"),L=document.getElementById("lbl"),d=parse(cur),h="";
   document.querySelectorAll(".tabs button").forEach(function(b){b.className=b.dataset.v==view?"on":"";if(b.dataset.v!="s")b.textContent=tr({d:"Jour",w:"Semaine",m:"Mois",b:"Bilan"}[b.dataset.v])});
@@ -283,9 +288,12 @@ function render(){
   document.getElementById("td").textContent=tr({d:"Aujourd’hui",w:"Cette semaine",m:"Ce mois-ci",b:sp=="w"?"Cette semaine":"Ce mois-ci"}[view]||"");
   if(view=="d"){L.textContent=d.toLocaleDateString(LOC,{weekday:"long",day:"numeric",month:"long"});h=dayHTML(td)}
   else if(view=="w"){
-    var mo=new Date(d);mo.setDate(d.getDate()-((d.getDay()+6)%7));L.textContent=tr("Semaine du")+" "+mo.toLocaleDateString(LOC,{day:"numeric",month:"short"});
-    for(var i=0;i<7;i++){var x=new Date(mo);x.setDate(mo.getDate()+i);var ds=iso(x),l=day(ds),dn=l.filter(function(t){return t.st=="done"}).length;
-      h+='<div class="wk'+(ds==td?" today":"")+'"><button class="wh" data-go="'+ds+'"><span><b>'+x.toLocaleDateString(LOC,{weekday:"long"})+"</b> "+x.getDate()+(ds==td?" <em>⟦Aujourd’hui⟧</em>":"")+'</span><span class="wc">'+(l.length?dn+"/"+l.length:"+")+'</span></button>'+(l.length?'<div class="bar"><i style="width:'+dn/l.length*100+'%"></i></div>'+l.map(function(t){return'<div class="wi p'+t.pri+(t.st=="done"?" done":"")+'" data-go="'+ds+'"><span class="time">'+fmt(mins(t.start))+"</span><span>"+dot(t.cat)+esc(t.title)+"</span>"+(t.st=="done"?'<span class="ck">✓</span>':t.st?'<span class="ck">'+(t.st=="int"?"⏸":"■")+"</span>":"")+"</div>"}).join(""):'<div class="mut">⟦Rien de prévu⟧</div>')+"</div>"}}
+    var wd0=wdays();L.textContent=tr("Semaine du")+" "+parse(wd0[0]).toLocaleDateString(LOC,{day:"numeric",month:"short"});
+    var ao=wd0.every(function(ds){return wop(ds,td)});
+    h+='<div class="tools" style="margin-top:0"><button data-act="wall">⟦'+(ao?"Tout replier":"Tout déplier")+'⟧</button></div>';
+    wd0.forEach(function(ds){var x=parse(ds),l=day(ds),dn=l.filter(function(t){return t.st=="done"}).length,op=wop(ds,td),
+      hd=(l.length?'<button class="wh" data-act="wtog" data-d="'+ds+'">':'<button class="wh" data-go="'+ds+'">')+'<span><b>'+x.toLocaleDateString(LOC,{weekday:"long"})+"</b> "+x.getDate()+(ds==td?" <em>⟦Aujourd’hui⟧</em>":"")+'</span><span class="wc">'+(l.length?dn+"/"+l.length+" "+(op?"▴":"▾"):"+")+'</span></button>';
+      h+='<div class="wk'+(ds==td?" today":"")+'">'+hd+(l.length?'<div class="bar"><i style="width:'+dn/l.length*100+'%"></i></div>'+(op?l.map(function(t){return'<div class="wi p'+t.pri+(t.st=="done"?" done":"")+'" data-go="'+ds+'"><span class="time">'+fmt(mins(t.start))+"</span><span>"+dot(t.cat)+esc(t.title)+"</span>"+(t.st=="done"?'<span class="ck">✓</span>':t.st?'<span class="ck">'+(t.st=="int"?"⏸":"■")+"</span>":"")+"</div>"}).join("")+'<button class="wgo" data-go="'+ds+'">⟦Ouvrir le jour⟧ →</button>':'<div class="wsum">'+l.slice(0,3).map(function(t){return'<span class="ws">'+dot(t.cat)+esc(t.title)+"</span>"}).join("")+(l.length>3?"<span>+"+(l.length-3)+"</span>":"")+"</div>"):'<div class="mut">⟦Rien de prévu⟧</div>')+"</div>"})}
   else if(view=="b")h=statsHTML();
   else if(view=="s")h=setHTML();
   else{
@@ -313,6 +321,8 @@ document.addEventListener("click",function(e){
   else if((a=="int"||a=="stop")&&t){var w=prompt(tr("Raison (facultatif)"));if(w===null)return;t.st="";setSt(t,a,w.trim());opened=null;save()}
   else if(a=="resume"&&t){resume(t);opened=null;save();toast("⟦Tâche reprise⟧")}
   else if(a=="clip0"){S.clip=[];save()}
+  else if(a=="wtog"){var dd=b.dataset.d;wopen[dd]=!wop(dd,iso(new Date()))}
+  else if(a=="wall"){var tdd=iso(new Date()),w7=wdays(),ao2=w7.every(function(ds){return wop(ds,tdd)});w7.forEach(function(ds){wopen[ds]=!ao2})}
   else if(a=="sp"){sp=id;sdet=null}
   else if(a=="why"){sdet=sdet==b.dataset.w?null:b.dataset.w}
   else if(a=="edit"){editId=id;opened=null}
