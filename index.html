@@ -126,6 +126,18 @@ main{padding-bottom:96px}
 .grip{position:absolute;right:0;top:0;bottom:0;width:30px;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;color:var(--muted)}
 .odc{padding:10px 12px}
 .odh{width:100%;display:flex;justify-content:space-between;background:none;border:0;padding:0;font-weight:600;cursor:pointer;text-align:left}
+.gcard{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;cursor:pointer;color:inherit}
+.gt{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}
+.gchs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.gch{padding:6px 10px;border:1px solid var(--accent);color:var(--accent);background:var(--card);border-radius:99px;cursor:pointer;font-size:.82rem}
+.garow{border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.gr1,.gr2{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.gr1 input:not([type=checkbox]){flex:1;min-width:0}.gr1 button{border:0;background:none;cursor:pointer;font-size:1.1rem;padding:4px}
+.garow input[type=checkbox]{width:20px;height:20px}
+.sq.m{background:var(--hi);opacity:.5}.sq.f{background:transparent;border:1px solid var(--line)}.sq.t{outline:2px solid var(--accent)}
+.gsq{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}.gf{font-size:.7rem}
+.glog{display:flex;gap:6px;margin-top:8px}.glog input{flex:1;min-width:0;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.glog button,.gl2{padding:9px 12px;border:1px solid var(--line);background:var(--card);border-radius:10px;cursor:pointer}
 .cd{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
 .stg{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:8px}
 .sty{display:flex;align-items:center;gap:8px;padding:10px;border:2px solid var(--line);border-radius:10px;cursor:pointer;font-size:.9rem}
@@ -138,13 +150,13 @@ main{padding-bottom:96px}
 <body>
 <main>
 <h1>Ma journée</h1>
-<div class="tabs"><button data-v="d">Jour</button><button data-v="w">Semaine</button><button data-v="m">Mois</button><button data-v="b">Bilan</button><button data-v="s">⚙</button></div>
+<div class="tabs"><button data-v="d">Jour</button><button data-v="w">Semaine</button><button data-v="m">Mois</button><button data-v="b">Bilan</button><button data-v="g">🎯</button><button data-v="s">⚙</button></div>
 <div class="nav"><button id="pv">‹</button><b id="lbl"></b><button id="nx">›</button><button id="td">Aujourd’hui</button></div>
 <div id="v"></div>
 </main>
 <div id="toast"></div>
 <script>
-var LANG="fr",LOC="fr-CA",K="planner-v2",S={tasks:[],tpls:[],gen:{}},view="d",editId=null,opened=null,notified={},DUR=[15,30,45,60,90,120,180,240,300,360,480,600,720],ST={done:"⟦Terminée⟧",int:"⟦Interrompue⟧",stop:"⟦Arrêtée⟧"},CATS=["Cours","Business","Travail","Sport","Perso","Autre"],WD=["L","M","M","J","V","S","D"],undo=null,pm=null,q="",fc="",tl=0,sh=0,opt=0,sel=null,sp="m",sdet=null,wopen={},odo=0;
+var LANG="fr",LOC="fr-CA",K="planner-v2",S={tasks:[],tpls:[],gen:{}},view="d",editId=null,opened=null,notified={},DUR=[15,30,45,60,90,120,180,240,300,360,480,600,720],ST={done:"⟦Terminée⟧",int:"⟦Interrompue⟧",stop:"⟦Arrêtée⟧"},CATS=["Cours","Business","Travail","Sport","Perso","Autre"],WD=["L","M","M","J","V","S","D"],undo=null,pm=null,q="",fc="",tl=0,sh=0,opt=0,sel=null,sp="m",sdet=null,wopen={},odo=0,gf=null,gid=null;
 function p2(n){return String(n).padStart(2,"0")}
 function iso(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
 function parse(s){var a=s.split("-");return new Date(+a[0],a[1]-1,+a[2])}
@@ -159,14 +171,14 @@ function dl(m){return m<60?m+" min":Math.floor(m/60)+" h"+(m%60?" "+p2(m%60):"")
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function find(id){return S.tasks.filter(function(t){return t.id==id})[0]}
 function wdi(d){return(parse(d).getDay()+6)%7}
-function ensure(d){if(d>=iso(new Date())&&!S.gen[d]){S.gen[d]=1;S.tpls.forEach(function(t){if((t.days||[0,1,2,3,4,5,6]).indexOf(wdi(d))>-1)S.tasks.push({id:uid(),title:t.title,start:t.start,dur:t.dur,pri:t.pri,cat:t.cat,note:(t.note||"").replace(/^x /gm,"- "),date:d,st:"",tp:t.id})});save()}}
+function ensure(d){if(d>=iso(new Date())&&!S.gen[d]){S.gen[d]=1;S.tpls.forEach(function(t){if(t.until&&d>t.until)return;if((t.days||[0,1,2,3,4,5,6]).indexOf(wdi(d))>-1&&!S.tasks.some(function(x){return x.tp==t.id&&x.date==d}))S.tasks.push({id:uid(),title:t.title,start:t.start,dur:t.dur,pri:t.pri,cat:t.cat,note:(t.note||"").replace(/^x /gm,"- "),date:d,st:"",tp:t.id,gl:t.gl})});save()}}
 function day(d){ensure(d);return S.tasks.filter(function(t){return t.date==d}).sort(function(a,b){return mins(a.start)-mins(b.start)})}
 function over(t,l){return l.filter(function(o){return o.id!=t.id&&t.dur&&o.dur&&mins(o.start)<mins(t.start)+t.dur&&mins(t.start)<mins(o.start)+o.dur})}
 function opts(a,sel,lab){return a.map(function(v){return'<option value="'+v+'"'+(v==sel?" selected":"")+'>'+lab(v)+'</option>'}).join("")}
 function nowHM(){var n=new Date();return fmt(n.getHours()*60+n.getMinutes())}
 function toast(x,cb){var t=document.getElementById("toast");t.textContent=mk(x);t.className="on"+(cb?" cb":"");t.onclick=cb?function(){cb();t.className=""}:null;clearTimeout(toast.h);toast.h=setTimeout(function(){t.className=""},cb?8000:5000)}
 var LANGS={fr:["Français","fr-CA","LMMJVSD"],en:["English","en-US","MTWTFSS"],es:["Español","es","LMXJVSD"]};
-var R=[["Rythme cassé : {0} jours d’affilée, dernière fois le {1}","Streak broken: {0} days in a row, last on {1}","Racha rota: {0} días seguidos, última vez el {1}"],["Reporter à demain","Postpone to tomorrow","Aplazar a mañana"],["Tâche reportée à demain","Task moved to tomorrow","Tarea aplazada a mañana"],["En retard","Overdue","Atrasadas"],["Ignorer","Dismiss","Descartar"],["Dernière sauvegarde il y a {0} jours","Last backup {0} days ago","Última copia hace {0} días"],["Aucune sauvegarde pour l’instant","No backup yet","Aún no hay copia"],["Plus tard","Later","Más tarde"],["Titre… (ex. : Étude 14h 2h)","Title… (e.g. Study 2pm 2h)","Título… (p. ej. Estudio 14h 2h)"],["Enregistrer comme modèle","Save as template","Guardar como plantilla"],["Nom du modèle","Template name","Nombre de la plantilla"],["Appliquer","Apply","Aplicar"],["Modèle enregistré","Template saved","Plantilla guardada"],["{0} tâches ajoutées","{0} tasks added","{0} tareas añadidas"],["{0} tâche ajoutée","{0} task added","{0} tarea añadida"],["Aucune tâche à enregistrer","No tasks to save","No hay tareas que guardar"],["Supprimer ce modèle?","Delete this template?","¿Eliminar esta plantilla?"],["Habitudes","Habits","Hábitos"],["{0} jours d’affilée","{0} days in a row","{0} días seguidos"],["{0} jour d’affilée","{0} day in a row","{0} día seguido"],["Heure modifiée : {0}","Time changed: {0}","Hora cambiada: {0}"],["Tout déplier","Expand all","Desplegar todo"],["Tout replier","Collapse all","Contraer todo"],["Ouvrir le jour","Open day","Abrir el día"],["Maintenant","Now","Ahora"],["Jour","Day","Día"],["Semaine","Week","Semana"],["Mois","Month","Mes"],["Bilan","Stats","Resumen"],["Aujourd’hui","Today","Hoy"],["Cette semaine","This week","Esta semana"],["Ce mois-ci","This month","Este mes"],["Réglages","Settings","Ajustes"],["Semaine du","Week of","Semana del"],["au","to","al"],
+var R=[["Objectifs","Goals","Objetivos"],["+ Nouvel objectif","+ New goal","+ Nuevo objetivo"],["Aucun objectif pour l’instant. Touche « + Nouvel objectif ».","No goals yet. Tap “+ New goal”.","Aún no hay objetivos. Toca «+ Nuevo objetivo»."],["Terminés","Finished","Terminados"],["Terminé","Finished","Terminado"],["J-{0}","{0}d left","{0} d"],["Nouvel objectif","New goal","Nuevo objetivo"],["Modifier l’objectif","Edit goal","Editar objetivo"],["Apprendre une langue","Learn a language","Aprender un idioma"],["Sport / prise de masse","Fitness / muscle gain","Deporte / ganar masa"],["Préparer un test","Prepare for a test","Preparar un examen"],["Argent à réunir","Money to raise","Dinero por reunir"],["Projet","Project","Proyecto"],["Personnalisé","Custom","Personalizado"],["Ex. : Anglais courant","E.g. Fluent English","Ej.: Inglés fluido"],["Quantité à atteindre (facultatif)","Target amount (optional)","Cantidad a alcanzar (opcional)"],["Unité ($, kg, h…)","Unit ($, kg, h…)","Unidad ($, kg, h…)"],["Tâches proposées (modifie-les ou ajoute les tiennes)","Suggested tasks (edit them or add your own)","Tareas sugeridas (edítalas o añade las tuyas)"],["+ Ajouter une tâche","+ Add a task","+ Añadir una tarea"],["sans durée","no duration","sin duración"],["Supprimer l’objectif","Delete goal","Eliminar objetivo"],["Supprimer cet objectif?","Delete this goal?","¿Eliminar este objetivo?"],["Annuler le dernier ajout","Undo last entry","Deshacer última entrada"],["Il te faut {0} {1} par jour pour y arriver.","You need {0} {1} per day to get there.","Necesitas {0} {1} al día para lograrlo."],["En avance de {0} {1}","Ahead by {0} {1}","Adelantado en {0} {1}"],["En retard de {0} {1}","Behind by {0} {1}","Atrasado en {0} {1}"],["Dans les temps","On track","En el buen camino"],["Quantité à ajouter","Amount to add","Cantidad a añadir"],["Discipline","Discipline","Disciplina"],["{0} % ({1}/{2} tâches faites)","{0}% ({1}/{2} tasks done)","{0} % ({1}/{2} tareas hechas)"],["Pas encore de jours évalués","No days evaluated yet","Aún no hay días evaluados"],["Série : {0} jours","Streak: {0} days","Racha: {0} días"],["Aujourd’hui : {0}/{1}","Today: {0}/{1}","Hoy: {0}/{1}"],["Tâches manquées : {0}","Missed tasks: {0}","Tareas no hechas: {0}"],["Tâches de l’objectif","Goal tasks","Tareas del objetivo"],["Bilan de l’objectif","Goal review","Balance del objetivo"],["Objectif atteint !","Goal reached!","¡Objetivo logrado!"],["Atteint à {0} %","Reached {0}%","Logrado al {0} %"],["Meilleure série : {0} jours","Best streak: {0} days","Mejor racha: {0} días"],["Très bonne discipline","Great discipline","Muy buena disciplina"],["Discipline correcte","Decent discipline","Disciplina aceptable"],["Discipline à renforcer","Discipline to improve","Disciplina por reforzar"],["Vocabulaire","Vocabulary","Vocabulario"],["Écoute (podcast, vidéo)","Listening (podcast, video)","Escucha (pódcast, vídeo)"],["Pratique orale","Speaking practice","Práctica oral"],["Écrire un court texte","Write a short text","Escribir un texto corto"],["Révision de la semaine","Weekly review","Repaso de la semana"],["Séance d’entraînement","Workout","Sesión de entrenamiento"],["Suivre mes repas","Track my meals","Registrar mis comidas"],["Pesée","Weigh-in","Pesaje"],["Dormir à heure fixe","Fixed bedtime","Dormir a hora fija"],["Réviser la matière","Study the material","Repasar la materia"],["Exercices / annales","Practice exercises","Ejercicios / exámenes anteriores"],["Fiches de synthèse","Summary sheets","Fichas de resumen"],["Examen blanc","Mock exam","Examen de práctica"],["Mettre de l’argent de côté","Set money aside","Apartar dinero"],["Revoir mon budget","Review my budget","Revisar mi presupuesto"],["Travailler sur le projet","Work on the project","Trabajar en el proyecto"],["Faire le point d’avancement","Progress check","Revisión de avance"],["Rythme cassé : {0} jours d’affilée, dernière fois le {1}","Streak broken: {0} days in a row, last on {1}","Racha rota: {0} días seguidos, última vez el {1}"],["Reporter à demain","Postpone to tomorrow","Aplazar a mañana"],["Tâche reportée à demain","Task moved to tomorrow","Tarea aplazada a mañana"],["En retard","Overdue","Atrasadas"],["Ignorer","Dismiss","Descartar"],["Dernière sauvegarde il y a {0} jours","Last backup {0} days ago","Última copia hace {0} días"],["Aucune sauvegarde pour l’instant","No backup yet","Aún no hay copia"],["Plus tard","Later","Más tarde"],["Titre… (ex. : Étude 14h 2h)","Title… (e.g. Study 2pm 2h)","Título… (p. ej. Estudio 14h 2h)"],["Enregistrer comme modèle","Save as template","Guardar como plantilla"],["Nom du modèle","Template name","Nombre de la plantilla"],["Appliquer","Apply","Aplicar"],["Modèle enregistré","Template saved","Plantilla guardada"],["{0} tâches ajoutées","{0} tasks added","{0} tareas añadidas"],["{0} tâche ajoutée","{0} task added","{0} tarea añadida"],["Aucune tâche à enregistrer","No tasks to save","No hay tareas que guardar"],["Supprimer ce modèle?","Delete this template?","¿Eliminar esta plantilla?"],["Habitudes","Habits","Hábitos"],["{0} jours d’affilée","{0} days in a row","{0} días seguidos"],["{0} jour d’affilée","{0} day in a row","{0} día seguido"],["Heure modifiée : {0}","Time changed: {0}","Hora cambiada: {0}"],["Tout déplier","Expand all","Desplegar todo"],["Tout replier","Collapse all","Contraer todo"],["Ouvrir le jour","Open day","Abrir el día"],["Maintenant","Now","Ahora"],["Jour","Day","Día"],["Semaine","Week","Semana"],["Mois","Month","Mes"],["Bilan","Stats","Resumen"],["Aujourd’hui","Today","Hoy"],["Cette semaine","This week","Esta semana"],["Ce mois-ci","This month","Este mes"],["Réglages","Settings","Ajustes"],["Semaine du","Week of","Semana del"],["au","to","al"],
 ["Aucune tâche prévue.","No tasks planned.","No hay tareas previstas."],["Maintenant :","Now:","Ahora:"],["Prochaine :","Next:","Siguiente:"],["jusqu’à","until","hasta"],["à","at","a las"],["Tout est réglé pour aujourd’hui.","Everything is done for today.","Todo listo por hoy."],["Il reste des tâches en retard.","Some tasks are overdue.","Hay tareas atrasadas."],["{0} tâches prévues","{0} tasks planned","{0} tareas previstas"],["{0} tâche prévue","{0} task planned","{0} tarea prevista"],["{0} sur {1} terminées","{0} of {1} done","{0} de {1} hechas"],["{0} sur {1} terminée","{0} of {1} done","{0} de {1} hecha"],["sélectionnées","selected","seleccionadas"],["sélectionnée","selected","seleccionada"],
 ["en cours","in progress","en curso"],["⚠ chevauche","⚠ overlaps","⚠ se solapa"],["↻ répétée","↻ repeats","↻ repetida"],["Terminée","Done","Hecha"],["Interrompue","Interrupted","Interrumpida"],["Arrêtée","Stopped","Detenida"],["terminée","done","hecha"],["interrompue","interrupted","interrumpida"],["arrêtée","stopped","detenida"],["reprise à","resumed at","reanudada a las"],["Rouvrir","Reopen","Reabrir"],["Reprendre","Resume","Reanudar"],["Modifier","Edit","Editar"],["Supprimer","Delete","Eliminar"],
 ["Aucune tâche à afficher.","No tasks to show.","No hay tareas que mostrar."],["Coller ({0})","Paste ({0})","Pegar ({0})"],["Annuler la copie","Cancel copy","Cancelar copia"],["Options","Options","Opciones"],["Nuit","Night","Madrugada"],["Matin","Morning","Mañana"],["Après-midi","Afternoon","Tarde"],["Soir","Evening","Noche"],
@@ -221,7 +233,7 @@ function qp(o){var x=o.title,st=null,du=null;
   x=x.replace(/\b(\d{1,2})\s*[h:]\s*(\d{2})?\b/gi,function(a,h,mi){var v=+h*60+(+mi||0);if(+h<24&&st===null)st=v;else if(du===null&&v>0)du=v;else return a;return" "});
   if(st!==null||du!==null){o.title=x.replace(/\s+/g," ").trim()||o.title;if(st!==null)o.start=hhmm(st);if(du!==null&&o.dur)o.dur=Math.min(720,Math.max(5,du))}}
 function topCards(td){
-  if(cur!=td)return"";var h="",od=S.tasks.filter(function(t){return t.date<td&&t.date>=addd(td,-7)&&!t.st&&!t.tp}).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:mins(a.start)-mins(b.start)});
+  var gc=goalChips(td);if(cur!=td)return gc;var h=gc,od=S.tasks.filter(function(t){return t.date<td&&t.date>=addd(td,-7)&&!t.st&&!t.tp}).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:mins(a.start)-mins(b.start)});
   if(od.length)h+='<div class="card odc"><button class="odh" data-act="odt"><span>⟦En retard⟧ ('+od.length+')</span><span>'+(odo?"▴":"▾")+'</span></button>'+(odo?od.slice(0,8).map(function(t){return'<div class="od"><span class="odt"><span class="mut">'+parse(t.date).toLocaleDateString(LOC,{weekday:"short",day:"numeric"})+" "+fmt(mins(t.start))+"</span> "+esc(t.title)+'</span><span><button data-act="od" data-k="mv" data-id="'+t.id+'">→ ⟦Aujourd’hui⟧</button><button data-act="od" data-k="dn" data-id="'+t.id+'">✓</button><button data-act="od" data-k="ig" data-id="'+t.id+'">⟦Ignorer⟧</button></span></div>'}).join("")+(od.length>8?'<div class="mut">+'+(od.length-8)+'</div>':""):"")+'</div>';
   var lb=S.bk,dd=lb?Math.round((parse(td)-parse(lb))/864e5):0;
   if(S.tasks.length>=3&&(!lb||dd>=14)&&(!S.bkz||S.bkz<=td))h+='<div class="od" style="margin:0 0 12px"><span class="mut">'+(lb?"⟦Dernière sauvegarde il y a {0} jours|"+dd+"⟧":"⟦Aucune sauvegarde pour l’instant⟧")+'</span><span><button data-act="bk">⟦Sauvegarder⟧</button><button data-act="bkz">⟦Plus tard⟧</button></span></div>';
@@ -239,6 +251,77 @@ function habHTML(){
   var sq=function(o){var q="";for(var i=0;i<14;i++){var d=addd(td,-i),sc=o.dys.indexOf(wdi(d))>-1,t=o.by[d];q='<i class="sq '+(!sc?"x":t&&t.st=="done"?"d":t&&t.st?"i":"")+'"></i>'+q}return'<div class="sqs">'+q+'</div>'};
   act.sort(function(a,b){return b.n-a.n});
   return'<div class="card"><b>⟦Habitudes⟧</b>'+act.map(function(x){return'<div class="hab"><b>'+esc(x.o.title)+'</b> <span class="mut">⟦'+(x.n==1?"{0} jour d’affilée":"{0} jours d’affilée")+"|"+x.n+'⟧</span>'+sq(x.o)+'</div>'}).join("")+brk.map(function(x){return'<div class="hab"><b>'+esc(x.o.title)+'</b> <span class="mut">⟦Rythme cassé : {0} jours d’affilée, dernière fois le {1}|'+x.n+"|"+parse(x.end).toLocaleDateString(LOC,{day:"numeric",month:"short"})+'⟧</span>'+sq(x.o)+'</div>'}).join("")+'</div>'}
+var GT={lang:["Apprendre une langue",[["Vocabulaire",20,"18:00",[0,1,2,3,4,5,6]],["Écoute (podcast, vidéo)",30,"18:30",[0,1,2,3,4,5,6]],["Pratique orale",30,"19:00",[0,2,4]],["Écrire un court texte",30,"19:00",[1,5]],["Révision de la semaine",45,"17:00",[6]]]],
+sport:["Sport / prise de masse",[["Séance d’entraînement",60,"18:00",[0,2,4,5]],["Suivre mes repas",10,"20:00",[0,1,2,3,4,5,6]],["Pesée",5,"07:30",[0]],["Dormir à heure fixe",0,"22:30",[0,1,2,3,4,5,6]]]],
+exam:["Préparer un test",[["Réviser la matière",90,"18:00",[0,1,2,3,4]],["Exercices / annales",60,"18:00",[5]],["Fiches de synthèse",45,"17:00",[6]],["Examen blanc",120,"14:00",[6]]]],
+money:["Argent à réunir",[["Mettre de l’argent de côté",0,"09:00",[0,1,2,3,4,5,6]],["Revoir mon budget",15,"19:00",[6]]]],
+proj:["Projet",[["Travailler sur le projet",60,"18:00",[0,1,2,3,4]],["Faire le point d’avancement",20,"17:00",[6]]]],
+free:["Personnalisé",[]]};
+function cact(k){return GT[k][1].map(function(a){return{on:1,title:tr(a[0]),start:a[2],dur:a[1],days:a[3].slice()}})}
+function dbt(a,b){return Math.round((parse(b)-parse(a))/864e5)}
+function dleft(g){return dbt(iso(new Date()),g.date)}
+function gtot(g){return(g.log||[]).reduce(function(a,x){return a+x.n},0)}
+function nf(x){return(Math.round(x*10)/10).toLocaleString(LOC)}
+function GD(ds){return(S.goals||[]).some(function(g){return g.date==ds})}
+function gstat(g){
+  var td=iso(new Date()),end=g.date<td?g.date:addd(td,-1),pl=0,dn=0,run=0,best=0,days=[];
+  for(var d=g.start;d<=g.date&&days.length<400;d=addd(d,1)){var p=0,k=0;
+    S.tpls.forEach(function(t){if(t.gl!=g.id||d<t.since||(t.until&&d>t.until)||(t.days||[0,1,2,3,4,5,6]).indexOf(wdi(d))<0)return;p++;if(S.tasks.some(function(x){return x.tp==t.id&&x.date==d&&x.st=="done"}))k++});
+    days.push({d:d,p:p,k:k});
+    if(d<=end&&p){pl+=p;dn+=k;if(k==p){run++;if(run>best)best=run}else run=0}}
+  return{pl:pl,dn:dn,run:run,best:best,days:days,pct:pl?Math.round(dn/pl*100):null}}
+function goalChips(td){var l=(S.goals||[]).filter(function(g){return cur==td?g.date>=td:g.date==cur});
+  return l.length?'<div class="gchs">'+l.map(function(g){var n=dleft(g);return'<button class="gch" data-act="gopen" data-id="'+g.id+'">🎯 '+esc(g.title)+" · "+(n<0?"⟦Terminé⟧":n==0?"⟦Aujourd’hui⟧":"⟦J-{0}|"+n+"⟧")+'</button>'}).join("")+'</div>':""}
+function gcard(g){var st=gstat(g),tot=gtot(g),p=g.target>0?Math.min(100,tot/g.target*100):(st.pct||0),n=dleft(g);
+  return'<button class="gcard" data-act="gopen" data-id="'+g.id+'"><div class="gt"><b>'+esc(g.title)+'</b><span class="mut">'+(n<0?"⟦Terminé⟧":n==0?"⟦Aujourd’hui⟧":"⟦J-{0}|"+n+"⟧")+'</span></div><div class="bar"><i style="width:'+p+'%"></i></div><div class="mut">'+(g.target>0?nf(tot)+" / "+nf(g.target)+" "+esc(g.unit||"")+(st.pct===null?"":" · "):"")+(st.pct===null?"":"⟦Discipline⟧ "+st.pct+" %")+'</div></button>'}
+function readGF(){if(!gf)return;var g=function(i){return document.getElementById(i)};if(!g("gti"))return;gf.title=g("gti").value;gf.date=g("gdt").value;gf.target=g("gtg").value;gf.unit=g("gun").value;
+  gf.acts=gf.acts.map(function(a,i){return{on:g("ga"+i+"o").checked,title:g("ga"+i+"t").value,start:g("ga"+i+"s").value||"18:00",dur:+g("ga"+i+"d").value,days:WD.map(function(_,j){return g("ga"+i+"w"+j).checked?j:-1}).filter(function(j){return j>=0})}})}
+function goalSubmit(){readGF();var f=gf,td=iso(new Date()),title=f.title.trim();if(!title||!f.date)return;
+  var acts=f.acts.filter(function(a){return a.on&&a.title.trim()&&a.days.length}).map(function(a){return{title:a.title.trim(),start:a.start,dur:a.dur,days:a.days}});
+  var g=f.id?S.goals.filter(function(x){return x.id==f.id})[0]:{id:uid(),start:td,log:[]};
+  Object.assign(g,{title:title,date:f.date,target:+f.target||0,unit:f.unit.trim(),type:f.type,acts:acts});
+  if(!f.id)(S.goals=S.goals||[]).push(g);
+  var yd=addd(td,-1),old=[];S.tpls.forEach(function(t){if(t.gl==g.id){old.push(t.id);if(!t.until||t.until>yd)t.until=yd}});
+  S.tasks=S.tasks.filter(function(x){return!(x.date>=td&&!x.st&&old.indexOf(x.tp)>-1)});
+  acts.forEach(function(a){S.tpls.push({id:uid(),title:a.title,start:a.start,dur:a.dur,pri:2,days:a.days,gl:g.id,since:td,until:g.date})});
+  Object.keys(S.gen).forEach(function(d){if(d>=td)delete S.gen[d]});
+  gf=null;gid=g.id;save();render()}
+function gformHTML(){var f=gf,td=iso(new Date());
+  return'<div class="shd" data-act="gcancel"></div><form id="gf" class="sheet"><b class="full">⟦'+(f.id?"Modifier l’objectif":"Nouvel objectif")+'⟧</b><select id="gtp" class="full">'+Object.keys(GT).map(function(k){return'<option value="'+k+'"'+(f.type==k?" selected":"")+'>⟦'+GT[k][0]+'⟧</option>'}).join("")+'</select><input class="full" id="gti" required placeholder="⟦Ex. : Anglais courant⟧" value="'+esc(f.title)+'"><input type="date" id="gdt" class="full" required value="'+f.date+'"><input type="number" step="any" min="0" id="gtg" placeholder="⟦Quantité à atteindre (facultatif)⟧" value="'+esc(String(f.target))+'"><input id="gun" placeholder="⟦Unité ($, kg, h…)⟧" value="'+esc(f.unit)+'"><div class="full mut">⟦Tâches proposées (modifie-les ou ajoute les tiennes)⟧</div>'
+  +f.acts.map(function(a,i){return'<div class="garow full"><div class="gr1"><input type="checkbox" id="ga'+i+'o"'+(a.on?" checked":"")+'><input id="ga'+i+'t" value="'+esc(a.title)+'" placeholder="⟦Titre…⟧"><button type="button" data-act="gadel" data-i="'+i+'" aria-label="✕">✕</button></div><div class="gr2"><input type="time" id="ga'+i+'s" value="'+a.start+'"><select id="ga'+i+'d">'+opts([0].concat(DUR),a.dur,function(v){return v?dl(v):"⟦sans durée⟧"})+'</select><span class="wd">'+WD.map(function(x,j){return'<label><input type="checkbox" id="ga'+i+'w'+j+'"'+(a.days.indexOf(j)>-1?" checked":"")+'>'+x+'</label>'}).join("")+'</span></div></div>'}).join("")
+  +'<button type="button" class="full ghost" data-act="gaadd">⟦+ Ajouter une tâche⟧</button><button class="full" type="submit">⟦Enregistrer⟧</button><button class="full ghost" type="button" data-act="gcancel">⟦Annuler⟧</button>'+(f.id?'<button class="full ghost" type="button" data-act="gdel">⟦Supprimer l’objectif⟧</button>':"")+'</form>'}
+function goalDetail(g,td){
+  var st=gstat(g),n=dleft(g),tot=gtot(g),fin=n<0,u=esc(g.unit||""),h="",tw=Math.max(1,dbt(g.start,g.date)),el=Math.max(0,Math.min(tw,dbt(g.start,td))),exp=g.target*el/tw,
+  tdy=st.days.filter(function(x){return x.d==td})[0]||{p:0,k:0};
+  document.getElementById("lbl").textContent=g.title;
+  h+='<div class="tools" style="margin-top:0"><button data-act="gback">‹ ⟦Objectifs⟧</button><button data-act="gedit" data-id="'+g.id+'">⟦Modifier⟧</button></div>';
+  h+='<div class="card"><b>'+esc(g.title)+'</b><div class="mut">'+parse(g.date).toLocaleDateString(LOC,{weekday:"long",day:"numeric",month:"long",year:"numeric"})+" · "+(fin?"⟦Terminé⟧":n==0?"⟦Aujourd’hui⟧":"⟦J-{0}|"+n+"⟧")+'</div></div>';
+  if(g.target>0){var pc=Math.round(tot/g.target*100);
+    h+='<div class="card"><b>'+nf(tot)+" / "+nf(g.target)+" "+u+'</b> <span class="mut">('+pc+' %)</span><div class="bar" style="margin-top:6px"><i style="width:'+Math.min(100,pc)+'%"></i></div>';
+    if(fin)h+='<div style="margin-top:8px"><b>'+(tot>=g.target?"⟦Objectif atteint !⟧":"⟦Atteint à {0} %|"+pc+"⟧")+'</b></div>';
+    else{var df=tot-exp,th=g.target*.05;
+      h+='<div class="mut" style="margin-top:8px">'+"⟦Il te faut {0} {1} par jour pour y arriver.|"+nf(Math.max(0,g.target-tot)/Math.max(1,n))+"|"+u+"⟧"+'<br><b>'+(df>=th?"⟦En avance de {0} {1}|"+nf(df)+"|"+u+"⟧":df<=-th?"⟦En retard de {0} {1}|"+nf(-df)+"|"+u+"⟧":"⟦Dans les temps⟧")+'</b></div><div class="glog"><input type="number" step="any" min="0" id="glg" placeholder="⟦Quantité à ajouter⟧"><button data-act="glog">⟦Ajouter⟧</button></div>'+(g.log.length?'<button class="gl2" style="margin-top:8px" data-act="gundo">⟦Annuler le dernier ajout⟧</button>':"")}
+    h+='</div>'}
+  var sq=st.days.map(function(x){return'<i class="sq '+(x.d>td?"f":x.d==td?"t"+(x.p&&x.k==x.p?" d":""):!x.p?"x":x.k==x.p?"d":x.k>0?"i":"m")+'"></i>'}).join("");
+  h+='<div class="card"><b>⟦Discipline⟧</b><div>'+(st.pct===null?"⟦Pas encore de jours évalués⟧":"⟦{0} % ({1}/{2} tâches faites)|"+st.pct+"|"+st.dn+"|"+st.pl+"⟧")+'</div>';
+  if(st.pl)h+='<div class="mut">'+(fin?"⟦Meilleure série : {0} jours|"+st.best+"⟧":"⟦Série : {0} jours|"+st.run+"⟧")+" · ⟦Tâches manquées : {0}|"+(st.pl-st.dn)+"⟧"+'</div>';
+  if(!fin&&tdy.p)h+='<div class="mut">⟦Aujourd’hui : {0}/{1}|'+tdy.k+"|"+tdy.p+'⟧</div>';
+  if(fin&&st.pct!==null)h+='<div style="margin-top:6px"><b>'+(st.pct>=85?"⟦Très bonne discipline⟧":st.pct>=60?"⟦Discipline correcte⟧":"⟦Discipline à renforcer⟧")+'</b></div>';
+  h+='<div class="gsq">'+sq+'</div></div>';
+  if(fin)h=h.replace('<b>'+esc(g.title)+'</b><div class="mut">','<b>⟦Bilan de l’objectif⟧ · '+esc(g.title)+'</b><div class="mut">');
+  else{var ts=S.tpls.filter(function(t){return t.gl==g.id&&(!t.until||t.until>=td)});
+    if(ts.length)h+='<div class="card"><b>⟦Tâches de l’objectif⟧</b>'+ts.map(function(t){return'<div class="mut">'+fmt(mins(t.start))+" · "+esc(t.title)+" · "+WD.map(function(x,j){return(t.days||[]).indexOf(j)>-1?x:"·"}).join("")+'</div>'}).join("")+'</div>'}
+  return h}
+function goalsHTML(){
+  var h="",td=iso(new Date()),G=(S.goals||[]).slice().sort(function(a,b){return a.date<b.date?-1:1});
+  if(gid){var g=G.filter(function(x){return x.id==gid})[0];if(g)h=goalDetail(g,td);else gid=null}
+  if(!gid){document.getElementById("lbl").textContent=tr("Objectifs");
+    h='<div class="tools" style="margin-top:0"><button class="add" data-act="gnew">⟦+ Nouvel objectif⟧</button></div>';
+    if(!G.length)h+='<div class="mut" style="text-align:center;padding:20px 0">⟦Aucun objectif pour l’instant. Touche « + Nouvel objectif ».⟧</div>';
+    h+=G.filter(function(x){return x.date>=td}).map(gcard).join("");
+    var old=G.filter(function(x){return x.date<td});if(old.length)h+='<div class="grp">⟦Terminés⟧</div>'+old.map(gcard).join("")}
+  if(gf)h+=gformHTML();
+  return h}
 function rng(k){var d=parse(cur),a,b;if(sp=="m"){a=new Date(d.getFullYear(),d.getMonth()+k,1);b=new Date(d.getFullYear(),d.getMonth()+k+1,0)}else{a=new Date(d);a.setDate(d.getDate()-((d.getDay()+6)%7)+7*k);b=new Date(a);b.setDate(a.getDate()+6)}return[iso(a),iso(b)]}
 function tin(r){return S.tasks.filter(function(t){return t.date>=r[0]&&t.date<=r[1]})}
 function rate(l){return l.length?Math.round(l.filter(function(t){return t.st=="done"}).length/l.length*100):null}
@@ -317,8 +400,8 @@ function wdays(){var d=parse(cur),mo=new Date(d),a=[];mo.setDate(d.getDate()-((d
 function wop(ds,td){return wopen[ds]!==undefined?wopen[ds]:ds==td}
 function render(){
   var td=iso(new Date()),el=document.getElementById("v"),L=document.getElementById("lbl"),d=parse(cur),h="";
-  document.querySelectorAll(".tabs button").forEach(function(b){b.className=b.dataset.v==view?"on":"";if(b.dataset.v!="s")b.textContent=tr({d:"Jour",w:"Semaine",m:"Mois",b:"Bilan"}[b.dataset.v])});
-  document.querySelector(".nav").className="nav"+(view=="s"?" solo":"");
+  document.querySelectorAll(".tabs button").forEach(function(b){b.className=b.dataset.v==view?"on":"";if(b.dataset.v!="s"&&b.dataset.v!="g")b.textContent=tr({d:"Jour",w:"Semaine",m:"Mois",b:"Bilan"}[b.dataset.v])});
+  document.querySelector(".nav").className="nav"+(view=="s"||view=="g"?" solo":"");
   document.getElementById("td").textContent=tr({d:"Aujourd’hui",w:"Cette semaine",m:"Ce mois-ci",b:sp=="w"?"Cette semaine":"Ce mois-ci"}[view]||"");
   if(view=="d"){L.textContent=d.toLocaleDateString(LOC,{weekday:"long",day:"numeric",month:"long"});h=dayHTML(td)}
   else if(view=="w"){
@@ -326,8 +409,9 @@ function render(){
     var ao=wd0.every(function(ds){return wop(ds,td)});
     h+='<div class="tools" style="margin-top:0"><button data-act="wall">⟦'+(ao?"Tout replier":"Tout déplier")+'⟧</button></div>';
     wd0.forEach(function(ds){var x=parse(ds),l=day(ds),dn=l.filter(function(t){return t.st=="done"}).length,op=wop(ds,td),
-      hd=(l.length?'<button class="wh" data-act="wtog" data-d="'+ds+'">':'<button class="wh" data-go="'+ds+'">')+'<span><b>'+x.toLocaleDateString(LOC,{weekday:"long"})+"</b> "+x.getDate()+(ds==td?" <em>⟦Aujourd’hui⟧</em>":"")+'</span><span class="wc">'+(l.length?dn+"/"+l.length+" "+(op?"▴":"▾"):"+")+'</span></button>';
+      hd=(l.length?'<button class="wh" data-act="wtog" data-d="'+ds+'">':'<button class="wh" data-go="'+ds+'">')+'<span><b>'+x.toLocaleDateString(LOC,{weekday:"long"})+"</b> "+x.getDate()+(ds==td?" <em>⟦Aujourd’hui⟧</em>":"")+(GD(ds)?" 🎯":"")+'</span><span class="wc">'+(l.length?dn+"/"+l.length+" "+(op?"▴":"▾"):"+")+'</span></button>';
       h+='<div class="wk'+(ds==td?" today":"")+'">'+hd+(l.length?'<div class="bar"><i style="width:'+dn/l.length*100+'%"></i></div>'+(op?l.map(function(t){return'<div class="wi p'+t.pri+(t.st=="done"?" done":"")+'" data-go="'+ds+'"><span class="time">'+fmt(mins(t.start))+"</span><span>"+dot(t.cat)+esc(t.title)+"</span>"+(t.st=="done"?'<span class="ck">✓</span>':t.st?'<span class="ck">'+(t.st=="int"?"⏸":"■")+"</span>":"")+"</div>"}).join("")+'<button class="wgo" data-go="'+ds+'">⟦Ouvrir le jour⟧ →</button>':'<div class="wsum">'+l.slice(0,3).map(function(t){return'<span class="ws">'+dot(t.cat)+esc(t.title)+"</span>"}).join("")+(l.length>3?"<span>+"+(l.length-3)+"</span>":"")+"</div>"):'<div class="mut">⟦Rien de prévu⟧</div>')+"</div>"})}
+  else if(view=="g")h=goalsHTML();
   else if(view=="b")h=statsHTML();
   else if(view=="s")h=setHTML();
   else{
@@ -336,7 +420,7 @@ function render(){
     h='<div class="mg">'+["L","M","M","J","V","S","D"].map(function(x){return'<div class="mh">'+x+'</div>'}).join("");
     for(var j=0;j<off;j++)h+="<div></div>";
     for(var k=1;k<=n;k++){var dk=y+"-"+p2(m+1)+"-"+p2(k),lk=day(dk);
-      h+='<button class="mc'+(dk==td?" today":"")+(dk==cur?" sel":"")+'" data-go="'+dk+'"><b>'+k+'</b><div class="dots">'+lk.slice(0,6).map(function(t){return'<i class="d p'+t.pri+(t.st=="done"?" dn":"")+'"></i>'}).join("")+'</div>'+(lk.length>6?"<small>+"+(lk.length-6)+"</small>":"")+'</button>'}
+      h+='<button class="mc'+(dk==td?" today":"")+(dk==cur?" sel":"")+'" data-go="'+dk+'"><b>'+k+'</b>'+(GD(dk)?'<span class="gf">🎯</span>':"")+'<div class="dots">'+lk.slice(0,6).map(function(t){return'<i class="d p'+t.pri+(t.st=="done"?" dn":"")+'"></i>'}).join("")+'</div>'+(lk.length>6?"<small>+"+(lk.length-6)+"</small>":"")+'</button>'}
     h+='</div><div class="lg"><i class="d p1" style="display:inline-block"></i> ⟦haute⟧ &nbsp;<i class="d p2" style="display:inline-block"></i> ⟦moyenne⟧ &nbsp;<i class="d" style="display:inline-block"></i> ⟦basse⟧. ⟦Touche un jour pour l’ouvrir.⟧</div>'}
   el.innerHTML=mk(h)}
 function step(n){var d=parse(cur);if(view=="m"||(view=="b"&&sp=="m")){d.setDate(1);d.setMonth(d.getMonth()+n)}else d.setDate(d.getDate()+(view=="w"||view=="b"?7*n:n));cur=iso(d);editId=null;sh=0;sel=null;render()}
@@ -348,7 +432,7 @@ document.getElementById("td").onclick=function(){cur=iso(new Date());editId=null
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-act],[data-v],[data-go]");if(!b)return;
   var a=b.dataset.act,id=b.dataset.id,t=id?find(id):null;
-  if(b.dataset.v){view=b.dataset.v;editId=null;sh=0;sel=null}
+  if(b.dataset.v){view=b.dataset.v;editId=null;sh=0;sel=null;if(view=="g")gid=null;gf=null}
   else if(b.dataset.go){cur=b.dataset.go;view="d";editId=null;sh=0;sel=null}
   else if(a=="open")opened=opened==id?null:id;
   else if(a=="done"&&t){resume(t);setSt(t,"done");opened=null;save()}
@@ -359,6 +443,16 @@ document.addEventListener("click",function(e){
   else if(a=="od"&&t){var k=b.dataset.k;if(k=="mv")t.date=iso(new Date());else{t.st=k=="dn"?"done":"stop";t.at=nowHM();t.why=""}save()}
   else if(a=="bkz"){S.bkz=addd(iso(new Date()),3);save()}
   else if(a=="odt")odo=odo?0:1;
+  else if(a=="gnew"){gf={id:null,type:"lang",title:"",date:addd(iso(new Date()),90),target:"",unit:"",acts:cact("lang")}}
+  else if(a=="gopen"){view="g";gid=id}
+  else if(a=="gback")gid=null;
+  else if(a=="gedit"){var g0=S.goals.filter(function(x){return x.id==id})[0];gf={id:g0.id,type:g0.type||"free",title:g0.title,date:g0.date,target:g0.target||"",unit:g0.unit||"",acts:g0.acts.map(function(q){return{on:1,title:q.title,start:q.start,dur:q.dur,days:q.days.slice()}})}}
+  else if(a=="gcancel")gf=null;
+  else if(a=="gaadd"){readGF();gf.acts.push({on:1,title:"",start:"18:00",dur:30,days:[0,1,2,3,4,5,6]})}
+  else if(a=="gadel"){readGF();gf.acts.splice(+b.dataset.i,1)}
+  else if(a=="glog"){var n0=parseFloat((document.getElementById("glg")||{}).value),g1=S.goals.filter(function(x){return x.id==gid})[0];if(!(n0>0)||!g1)return;g1.log.push({d:iso(new Date()),n:n0});save()}
+  else if(a=="gundo"){var g2=S.goals.filter(function(x){return x.id==gid})[0];if(g2&&g2.log.length){g2.log.pop();save()}}
+  else if(a=="gdel"){if(!confirm(tr("Supprimer cet objectif?")))return;var yd2=addd(iso(new Date()),-1),gx=gf.id,td2=iso(new Date());S.goals=S.goals.filter(function(x){return x.id!=gx});S.tpls.forEach(function(t2){if(t2.gl==gx&&(!t2.until||t2.until>yd2))t2.until=yd2});S.tasks=S.tasks.filter(function(x){return!(x.gl==gx&&x.date>=td2&&!x.st)});gf=null;gid=null;save()}
   else if(a=="mdsave"){var c0=day(cur).filter(function(x){return!x.tp});if(!c0.length){toast("⟦Aucune tâche à enregistrer⟧");return}var nm=prompt(tr("Nom du modèle"));if(!nm||!nm.trim())return;(S.models=S.models||[]).push({name:nm.trim(),tasks:c0.map(function(x){return{title:x.title,start:x.start,dur:x.dur,pri:x.pri,cat:x.cat,note:(x.note||"").replace(/^x /gm,"- ")}})});save();toast("⟦Modèle enregistré⟧")}
   else if(a=="mdapply"){var md=S.models[+b.dataset.i];md.tasks.forEach(function(x){S.tasks.push({id:uid(),title:x.title,start:x.start,dur:x.dur,pri:x.pri,cat:x.cat,note:x.note,date:cur,st:""})});save();toast("⟦"+(md.tasks.length>1?"{0} tâches ajoutées":"{0} tâche ajoutée")+"|"+md.tasks.length+"⟧")}
   else if(a=="mddel"){if(confirm(tr("Supprimer ce modèle?"))){S.models.splice(+b.dataset.i,1);save()}else return}
@@ -390,7 +484,7 @@ document.addEventListener("click",function(e){
   else return;
   render()});
 document.getElementById("v").addEventListener("submit",function(e){
-  e.preventDefault();
+  e.preventDefault();if(e.target.id=="gf"){goalSubmit();return}
   var g=function(i){return document.getElementById(i)},o={title:g("title").value.trim(),start:g("start").value,dur:g("pt").checked?0:+g("dur").value,pri:+g("pri").value,date:g("date").value,cat:g("cat").value,note:g("note").value},days=WD.map(function(_,i){return g("rd"+i).checked?i:-1}).filter(function(i){return i>=0}),rep=days.length>0;
   if(!editId)qp(o);var ex=editId?find(editId):null,t=ex||{id:uid(),st:""},ov=over(Object.assign({},t,o),day(o.date));
   if(ov.length&&!confirm(mk("⟦Chevauche « {0} ». Ajouter quand même?|"+ov[0].title+"⟧")))return;
@@ -411,7 +505,7 @@ setInterval(tick,30000);
 document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible")tick()});
 setLang();applyTheme();
 document.addEventListener("input",function(e){var i=e.target.id;if(i=="q"||i=="fc"){q=document.getElementById("q").value;fc=document.getElementById("fc").value;var p=e.target.selectionStart;render();var n=document.getElementById(i);n.focus();try{n.setSelectionRange(p,p)}catch(x){}}});
-document.addEventListener("change",function(e){var i=e.target.id;if(i=="th"){S.theme=e.target.value;applyTheme();save()}else if(i=="dd"){S.dd=+e.target.value;save()}else if(i=="lg"){S.lang=e.target.value;save();setLang();render()}else if(i=="fi")restore(e.target.files[0]);else if(i=="pt")document.getElementById("dur").disabled=e.target.checked});
+document.addEventListener("change",function(e){var i=e.target.id;if(i=="th"){S.theme=e.target.value;applyTheme();save()}else if(i=="dd"){S.dd=+e.target.value;save()}else if(i=="lg"){S.lang=e.target.value;save();setLang();render()}else if(i=="gtp"){readGF();gf.type=e.target.value;gf.acts=cact(gf.type);render()}else if(i=="fi")restore(e.target.files[0]);else if(i=="pt")document.getElementById("dur").disabled=e.target.checked});
 var dg=null;
 document.addEventListener("pointerdown",function(e){var g=e.target.closest&&e.target.closest(".grip");if(!g)return;var b=g.parentNode,t=find(b.dataset.id);if(!t)return;dg={t:t,y:e.clientY,b:b,top:parseFloat(b.style.top),s:mins(t.start),m:0};try{if(e.pointerId!==undefined)g.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
 document.addEventListener("pointermove",function(e){if(!dg)return;var dm=Math.round((e.clientY-dg.y)/.8/15)*15;dg.m=Math.max(-dg.s,Math.min(1439-dg.s,dm));dg.b.style.top=(dg.top+dg.m*.8)+"px"});
