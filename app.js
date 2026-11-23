@@ -192,8 +192,8 @@ function render(){GSC={};GDM=null;
       hd=(l.length?'<button class="wh" data-act="wtog" data-d="'+ds+'">':'<button class="wh" data-go="'+ds+'">')+'<span><b>'+x.toLocaleDateString(LOC,{weekday:"long"})+"</b> "+x.getDate()+(ds==td?" <em>⟦Aujourd’hui⟧</em>":"")+(GD(ds)?" 🎯":"")+'</span><span class="wc">'+(l.length?dn+"/"+l.length+" "+(op?"▴":"▾"):"+")+'</span></button>';
       h+='<div class="wk'+(ds==td?" today":"")+'">'+hd+(l.length?'<div class="bar"><i style="width:'+dn/l.length*100+'%"></i></div>'+(op?l.map(function(t){return'<div class="wi p'+t.pri+(t.st=="done"?" done":"")+'" data-go="'+ds+'"><span class="time">'+fmt(mins(t.start))+"</span><span>"+dot(t.cat)+esc(t.title)+"</span>"+(t.st=="done"?'<span class="ck">✓</span>':t.st?'<span class="ck">'+(t.st=="int"?"⏸":"■")+"</span>":"")+"</div>"}).join("")+'<button class="wgo" data-go="'+ds+'">⟦Ouvrir le jour⟧ →</button>':'<div class="wsum">'+l.slice(0,3).map(function(t){return'<span class="ws">'+dot(t.cat)+esc(t.title)+"</span>"}).join("")+(l.length>3?"<span>+"+(l.length-3)+"</span>":"")+"</div>"):'<div class="mut">⟦Rien de prévu⟧</div>')+"</div>"})}
   else if(view=="g")h=goalsHTML();
-  else if(view=="b")h=statsHTML();
-  else if(view=="s")h=setHTML();
+  else if(view=="b")h=statsHTML()+(typeof xBil=="function"?xBil():"");
+  else if(view=="s")h=setHTML()+(typeof xSet=="function"?xSet():"");
   else{
     var y=d.getFullYear(),m=d.getMonth(),off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
     L.textContent=d.toLocaleDateString(LOC,{month:"long",year:"numeric"});
@@ -202,7 +202,7 @@ function render(){GSC={};GDM=null;
     for(var k=1;k<=n;k++){var dk=y+"-"+p2(m+1)+"-"+p2(k),lk=day(dk);
       h+='<button class="mc'+(dk==td?" today":"")+(dk==cur?" sel":"")+'" data-go="'+dk+'"><b>'+k+'</b>'+(GD(dk)?'<span class="gf">🎯</span>':GM(dk)?'<span class="gf">🏁</span>':"")+'<div class="dots">'+(lk.some(function(t){return t.pri==1&&!t.st})?'<i class="d p1"></i>':"")+'</div>'+(lk.length?"<small>"+lk.length+"</small>":"")+'</button>'}
     h+='</div><div class="lg"><i class="d p1" style="display:inline-block"></i> ⟦priorité haute⟧ · 🎯 ⟦échéance d’un objectif⟧ · ⟦Touche un jour pour l’ouvrir.⟧</div>'}
-  el.innerHTML=mk(h)}
+  el.innerHTML=mk((typeof xTop=="function"?xTop():"")+h+(typeof xHTML=="function"?xHTML():""));if(typeof xAfter=="function")xAfter()}
 function step(n){var d=parse(cur);if(view=="m"||(view=="b"&&sp=="m")){d.setDate(1);d.setMonth(d.getMonth()+n)}else d.setDate(d.getDate()+(view=="w"||view=="b"?7*n:n));cur=iso(d);editId=null;sh=0;sel=null;render()}
 function resume(t){if(t.st=="int"||t.st=="stop"){(t.hist=t.hist||[]).push({s:t.st,a:t.at,w:t.why||"",b:nowHM()});t.st="";t.at="";t.why=""}}
 function setSt(t,s,why){if(t.st==s){t.st="";t.at="";t.why=""}else{t.st=s;t.at=nowHM();t.why=why||""}}
@@ -286,6 +286,7 @@ document.addEventListener("click",function(e){
   else if(a=="rs"){document.getElementById("fi").click();return}
   else if(a=="ics"){ics();return}
   else if(mvAct(a,b,id,t)){}
+  else if(typeof xAct=="function"&&xAct(a,b,id,t)){}
   else return;
   render()});
 document.getElementById("v").addEventListener("submit",function(e){
@@ -302,7 +303,7 @@ function tick(){
   var n=new Date(),td=iso(n);
   if(td!=lastDay&&document.visibilityState=="visible"){lastDay=td;cur=td;render()}
   if(S.rem){var m=n.getHours()*60+n.getMinutes();day(td).forEach(function(t){var s=mins(t.start),k=t.id+td;if(!t.st&&m>=s-5&&m<s&&!notified[k]){notified[k]=1;ping("⟦Dans {0} min : {1}|"+(s-m)+"|"+t.title+"⟧")}})}
-  if(view=="d"&&cur==td&&!sh&&!editId&&!sel&&!(document.activeElement&&document.activeElement.closest(".flt")))render()}
+  if(view=="d"&&cur==td&&!sh&&!editId&&!sel&&!(typeof xBusy=="function"&&xBusy())&&!(document.activeElement&&document.activeElement.closest(".flt")))render()}
 setInterval(tick,30000);
 document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible")tick()});
 setLang();applyTheme();

@@ -256,3 +256,8 @@ h1 .logo{width:32px;height:32px;border-radius:9px;box-shadow:0 2px 8px -2px rgba
 .mvh{background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;margin:0 auto}
 .mvh .tools{margin:0}.mvh>button{padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:inherit;font:inherit;cursor:pointer}
 .mvh .tools button{padding:9px 12px}
+/* Accessibilité */
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.nav button,.gear,.tabs button,.tools button,.fab{min-height:44px}
+textarea{font:inherit;width:100%;box-sizing:border-box;border-radius:10px;border:1px solid var(--line,#d9e3f1);background:var(--card,#fff);color:var(--text);padding:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

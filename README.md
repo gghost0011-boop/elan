@@ -41,6 +41,9 @@ Ouvrir le lien sur un téléphone, puis « Ajouter à l'écran d'accueil ».
 - Bouton « J'ai du mal » sur une tâche : motif, citation adaptée, rappel de son pourquoi et de son plan B, puis micro-étapes (5 minutes seulement, décaler, ce soir, demain)
 - « Mon pourquoi » par objectif, « Plan B » par tâche, priorité du jour et bilan du soir
 - Après une série cassée : « Ne rate jamais deux fois de suite »
+- Présentation en 3 étapes au premier lancement (jamais affichée à qui a déjà des données)
+- Bilan de la semaine : chiffres clés, meilleur jour, priorités tenues et une décision pour la semaine suivante
+- Accessibilité : taille du texte réglable, navigation au clavier, rôles ARIA, respect de « réduire les animations »
 
 **Sous le capot**
 - Fonctionne hors ligne, s'installe comme une application
@@ -58,7 +61,7 @@ Ouvrir le lien sur un téléphone, puis « Ajouter à l'écran d'accueil ».
 | Rendu | Gabarits HTML et délégation d'événements (`data-act`), sans framework |
 | Internationalisation | Textes balisés dans le code, dictionnaire par langue et repli sur l'anglais ; bascule `dir="rtl"` pour l'arabe |
 | Thèmes | Variables CSS : 7 styles combinés à clair, sombre ou automatique |
-| Tests | 24 tests automatisés (`node:test` et jsdom) avec une horloge figée pour des résultats déterministes |
+| Tests | 44 tests automatisés (`node:test` et jsdom) avec une horloge figée, lancés à chaque envoi par GitHub Actions |
 | Poids | Environ 200 Ko au total, aucune dépendance à l'exécution |
 
 Quelques points de conception :
@@ -75,12 +78,15 @@ app.js                données, vues Jour/Semaine/Mois/Bilan, réglages
 goals.js              objectifs, discipline, jalons, progression
 motiv.js              citations sourcées, « J'ai du mal », priorité du jour, tâches liées
 motiv-more.js         motivation en pt, zh, hi, ar, ru
+extra.js              premier lancement, bilan de la semaine, accessibilité
 plan.js               formules gratuit/premium (tout débloqué pour l'instant) et migration des données
 tracking.js           sommeil, journal, écart entre heure prévue et réelle
 i18n.js               dictionnaire fr/en/es et choix de la langue
 i18n-more.js          pt, zh, hi, ar, ru
 sw.js                 service worker (hors ligne)
 manifest.webmanifest  métadonnées d'installation
+privacy.html          politique de confidentialité (fr/en)
+.github/workflows/    tests automatiques (GitHub Actions)
 tests/                tests automatisés
 ```
 
