@@ -286,3 +286,19 @@ test("en anglais, aucune vue ne laisse de texte français", () => withApp({
   a.click("[data-act=gnew]");
   assert.doesNotMatch(a.text(), FRENCH, "texte français dans le formulaire d’objectif");
 }));
+
+test("les 5 langues supplémentaires s’affichent sans texte français ni erreur", async () => {
+  for (const lang of ["pt-BR", "zh-CN", "hi-IN", "ar-EG", "ru-RU"]) {
+    await withApp({
+      lang,
+      state: base({ tasks: [task({ title: "Study" })], goals: [goal({})] }),
+    }, async (a) => {
+      const FRENCH = /(tâche|Terminée|Aujourd’hui|Réglages|Objectif|Ajouter|Modifier|Annuler|Supprimer|Maintenant|Prochaine|Semaine|Bilan|Rechercher)/;
+      for (const v of ["[data-v=d]", "[data-v=w]", "[data-v=m]", "[data-v=b]", ".gear", "[data-v=g]"]) {
+        a.click(v);
+        assert.doesNotMatch(a.text(), FRENCH, lang + " : texte français dans la vue " + v);
+        assert.doesNotMatch(a.text(), /undefined|NaN/, lang + " : valeur manquante dans la vue " + v);
+      }
+    });
+  }
+});
