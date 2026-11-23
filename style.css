@@ -160,3 +160,88 @@ html[dir=rtl] .fab{right:auto;left:16px}
 html[dir=rtl] .grip{right:auto;left:0}
 html[dir=rtl] .why,html[dir=rtl] .gcard,html[dir=rtl] .gn,html[dir=rtl] .odh,html[dir=rtl] .gh,html[dir=rtl] .nav.solo b{text-align:right}
 html[dir=rtl] .wd label{margin-right:0;margin-left:8px}
+
+/* ===== Design 2026 : épuré, aéré, navigation en bas ===== */
+:root{--r:18px;--sh:0 1px 2px rgba(15,30,70,.06),0 8px 24px -12px rgba(15,30,70,.18)}
+body{font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+main{padding:14px 16px 150px}
+/* en-tête */
+.top{margin:2px 0 6px}
+h1{display:flex;align-items:center;gap:9px;font-size:1.45rem;font-weight:750;letter-spacing:-.02em;margin:0}
+h1 .logo{width:30px;height:30px;color:var(--accent);flex:none}
+.gear{width:42px;height:42px;border-radius:50%;border:0;background:var(--card);box-shadow:var(--sh);font-size:1.15rem}
+/* navigation du bas */
+.tabs{position:fixed;left:0;right:0;bottom:0;margin:0 auto;width:min(680px,100%);z-index:12;gap:0;padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-top:1px solid var(--line)}
+.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;border-radius:14px;padding:6px 2px;font-size:.68rem;font-weight:600;color:var(--muted);letter-spacing:.01em;transition:color .15s}
+.tabs button::before{content:"";width:46px;height:28px;border-radius:14px;background:currentColor;-webkit-mask:var(--ic) center/22px no-repeat;mask:var(--ic) center/22px no-repeat;transition:background .15s}
+.tabs button.on{background:none;color:var(--accent);border:0}
+.tabs button.on::before{background:var(--accent)}
+.tabs [data-v=d]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l3 3 5-6'/%3E%3C/svg%3E")}
+.tabs [data-v=w]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='3'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4M8 14h2M14 14h2'/%3E%3C/svg%3E")}
+.tabs [data-v=m]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='3.5' width='17' height='17' rx='3'/%3E%3Cpath d='M3.5 9h17M3.5 14.5h17M9 9v11.5M15 9v11.5'/%3E%3C/svg%3E")}
+.tabs [data-v=b]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 20v-8M12 20V4M19 20v-5'/%3E%3C/svg%3E")}
+.tabs [data-v=g]{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='4.5'/%3E%3Ccircle cx='12' cy='12' r='.8'/%3E%3C/svg%3E")}
+/* titre de la période */
+.nav{gap:4px;margin:4px 0 12px}
+.nav b{font-size:1.28rem;font-weight:750;letter-spacing:-.02em;text-align:left;padding-left:4px}
+.nav button{border:0;background:var(--card);box-shadow:var(--sh);border-radius:50%;width:40px;height:40px;padding:0;font-size:1.2rem;line-height:1;color:var(--text)}
+.nav #td{width:auto;border-radius:99px;padding:0 14px;font-size:.82rem;font-weight:650;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card));box-shadow:none;margin-left:4px;white-space:nowrap}
+.nav.solo b{font-size:1.28rem}
+/* cartes */
+.card,.gg,.wk,.gcard,.hd,form,.task,.odc{border-radius:var(--r);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);box-shadow:var(--sh)}
+.card,.gg,.gcard,.wk{padding:14px 16px}
+.hd{padding:16px 18px;gap:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 15%,var(--card)),var(--card) 70%);border-color:color-mix(in srgb,var(--accent) 22%,var(--line))}
+.hs{font-size:1.1rem;font-weight:750;letter-spacing:-.01em}
+.ring{width:68px;height:68px}
+.hb{font-size:.9rem;line-height:1.5}
+/* tâches */
+.task{padding:14px 14px 14px 20px;margin-bottom:10px}
+.task::before{left:8px;top:14px;bottom:14px;width:4px}
+.task.now{outline:0;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--card))}
+.t{font-weight:650;font-size:1.02rem}
+.tc b{font-size:1rem}
+.row{gap:12px;align-items:center}
+.row>input[data-act]{margin-top:0}
+.grp{font-size:.72rem;font-weight:700;letter-spacing:.1em;margin:20px 4px 8px}
+.nowl{margin:6px 0 12px}
+.gg{margin-bottom:12px}
+.gh{font-size:1.02rem;font-weight:700}
+/* boutons et champs */
+.fab{bottom:calc(86px + env(safe-area-inset-bottom,0px));right:18px;padding:14px 22px;font-size:1rem;box-shadow:0 8px 22px -6px color-mix(in srgb,var(--accent) 70%,black),0 2px 4px rgba(0,0,0,.15)}
+#toast{bottom:calc(92px + env(safe-area-inset-bottom,0px));border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+form input,form select,form textarea,form button,.card select,.glog input{border-radius:12px;padding:11px 12px}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px}
+.tools button,.tools input,.acts button,.glog button,.gl2,.od button,.fx button{border-radius:12px}
+.gchs .gch,.wnb{border-radius:99px}
+.gch{padding:7px 12px}
+.acts{gap:8px}.acts button{padding:8px 12px;font-weight:600}
+/* semaine */
+.wk{margin-bottom:10px}.wk.today{outline:0;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+.wh{font-size:1.02rem}
+/* mois */
+.mg{gap:6px}
+.mc{border:0;border-radius:14px;min-height:66px;padding:6px;box-shadow:var(--sh)}
+.mc b{font-weight:650}
+.mc.today{border:0;background:color-mix(in srgb,var(--accent) 12%,var(--card))}.mc.sel{background:color-mix(in srgb,var(--accent) 18%,var(--card));box-shadow:inset 0 0 0 2px var(--accent)}
+.mh{font-weight:650;padding:4px 0}
+/* feuille d'édition */
+.sheet{border-radius:24px 24px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.25)}
+.sty{border-radius:14px}
+.bar{height:7px}
+/* sections des cartes (réglages, bilan) */
+.card b{font-weight:700}
+html[dir=rtl] .fab{right:auto;left:18px}
+html[dir=rtl] .nav b{text-align:right}
+h1 .logo{width:32px;height:32px;border-radius:9px;box-shadow:0 2px 8px -2px rgba(15,30,70,.35)}
+.nav button{width:36px;height:36px;font-size:1.1rem}
+.nav b{font-size:1.12rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.nav #td{padding:0 12px;height:36px;font-size:.78rem}
+.od[style*="margin:0 0 12px"]{background:color-mix(in srgb,var(--accent) 9%,var(--card));border-radius:14px;padding:10px 12px;font-size:.84rem}
+.od[style*="margin:0 0 12px"] button{border-color:transparent;background:var(--card);font-weight:600}
+.odc{padding:12px 16px}
+.tools{margin-top:10px}
+.tools button,.tools input{font-weight:600;font-size:.9rem}
+.nav b{text-transform:none}.nav b::first-letter{text-transform:uppercase}
+.nav b{font-size:1rem}
+.stg{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
+.sty span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
