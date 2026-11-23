@@ -1,5 +1,7 @@
 # Élan
 
+[![tests](https://github.com/gghost0011-boop/elan/actions/workflows/tests.yml/badge.svg)](https://github.com/gghost0011-boop/elan/actions/workflows/tests.yml)
+
 **Planificateur de journée installable (PWA), sans serveur, sans compte, sans dépendance.**
 Tâches, objectifs, discipline et bilan, dans une seule application qui fonctionne hors ligne et s'installe sur l'écran d'accueil.
 
