@@ -245,3 +245,4 @@ h1 .logo{width:32px;height:32px;border-radius:9px;box-shadow:0 2px 8px -2px rgba
 .nav b{font-size:1rem}
 .stg{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
 .sty span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gchs .gch{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
