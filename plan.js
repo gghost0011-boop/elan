@@ -16,3 +16,10 @@ var MIGRATIONS=[
 function migrate(s){var v=+s.v||0;while(v<DV&&MIGRATIONS[v]){MIGRATIONS[v](s);v++}s.v=DV;return s}
 D.en["Cette sauvegarde vient d’une version plus récente d’Élan. Mets l’application à jour."]="This backup comes from a newer version of Élan. Update the app.";
 D.es["Cette sauvegarde vient d’une version plus récente d’Élan. Mets l’application à jour."]="Esta copia viene de una versión más reciente de Élan. Actualiza la aplicación.";
+
+D.en["Formule"]="Plan";D.es["Formule"]="Plan";
+D.en["Tout est débloqué (version de lancement)"]="Everything is unlocked (launch version)";D.es["Tout est débloqué (version de lancement)"]="Todo está desbloqueado (versión de lanzamiento)";
+D.en["Gratuite"]="Free";D.es["Gratuite"]="Gratuita";D.en["Premium"]="Premium";D.es["Premium"]="Premium";
+D.en["Version des données : {0}"]="Data version: {0}";D.es["Version des données : {0}"]="Versión de los datos: {0}";
+function planHTML(){if(!/[?&]admin\b/.test(location.search))return"";var t=OPEN?"Tout est débloqué (version de lancement)":isPremium()?"Premium":"Gratuite";
+  return'<div class="card"><b>⟦Formule⟧</b><div>'+(OPEN?"🔓 ":isPremium()?"⭐ ":"")+"⟦"+t+"⟧</div><span class=\"mut\">⟦Version des données : {0}|"+DV+"⟧</span></div>"}
