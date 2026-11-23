@@ -1,4 +1,4 @@
-/* Ma journée — noyau de l’application : données, vues Jour/Semaine/Mois/Bilan, réglages */
+/* Élan — noyau de l’application : données, vues Jour/Semaine/Mois/Bilan, réglages */
 var LANG="fr",LOC="fr-CA",K="planner-v2",S={tasks:[],tpls:[],gen:{}},view="d",editId=null,opened=null,notified={},DUR=[15,30,45,60,90,120,180,240,300,360,480,600,720],ST={done:"⟦Terminée⟧",int:"⟦Interrompue⟧",stop:"⟦Arrêtée⟧"},CATS=["Cours","Business","Travail","Sport","Perso","Autre"],WD=["L","M","M","J","V","S","D"],undo=null,pm=null,q="",fc="",tl=0,sh=0,opt=0,sel=null,sp="m",sdet=null,wopen={},odo=0,gf=null,gid=null,gco=0,gopn={},GSC={},GDM=null,jro=0,gwo=0,wnow=null,dnOpen=0;
 function p2(n){return String(n).padStart(2,"0")}
 function iso(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
@@ -278,7 +278,7 @@ document.addEventListener("click",function(e){
   else if(a=="sub"&&t){var ls=t.note.split("\n"),i=+b.dataset.i;ls[i]=(ls[i][0]=="x"?"- ":"x ")+ls[i].slice(2);t.note=ls.join("\n");save()}
   else if(a=="sty"){S.style=id;save();applyTheme()}
   else if(a=="tl")tl=tl?0:1;
-  else if(a=="pm"){if(pm){pm=null;document.title="Ma journée"}else pm={work:1,end:Date.now()+15e5}}
+  else if(a=="pm"){if(pm){pm=null;document.title="Élan"}else pm={work:1,end:Date.now()+15e5}}
   else if(a=="bk"){S.bk=iso(new Date());save();dlf("ma-journee-sauvegarde-"+iso(new Date())+".json",JSON.stringify(S),"application/json");render();return}
   else if(a=="rs"){document.getElementById("fi").click();return}
   else if(a=="ics"){ics();return}
@@ -293,7 +293,7 @@ document.getElementById("v").addEventListener("submit",function(e){
   if(rep){if(!t.tp){t.tp=uid();S.tpls.push({id:t.tp});S.gen[t.date]=1}Object.assign(S.tpls.filter(function(x){return x.id==t.tp})[0],{title:o.title,start:o.start,dur:o.dur,pri:o.pri,cat:o.cat,note:o.note,days:days})}
   else if(t.tp){S.tpls=S.tpls.filter(function(x){return x.id!=t.tp});delete t.tp}
   editId=null;sh=0;cur=o.date;save();render()});
-function ping(x){toast(x);try{if(Notification.permission=="granted")navigator.serviceWorker.ready.then(function(r){r.showNotification("Ma journée",{body:mk(x),icon:"icon-192.png"})})}catch(e){}}
+function ping(x){toast(x);try{if(Notification.permission=="granted")navigator.serviceWorker.ready.then(function(r){r.showNotification("Élan",{body:mk(x),icon:"icon-192.png"})})}catch(e){}}
 function tick(){
   var n=new Date(),td=iso(n);
   if(td!=lastDay&&document.visibilityState=="visible"){lastDay=td;cur=td;render()}
