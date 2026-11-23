@@ -246,3 +246,13 @@ h1 .logo{width:32px;height:32px;border-radius:9px;box-shadow:0 2px 8px -2px rgba
 .stg{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
 .sty span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gchs .gch{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Motivation */
+.mvq{margin:2px 0}.mvt{font-size:1.05rem;line-height:1.45;font-style:italic}.mvs{margin-top:4px}
+.mvc .mvp{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.mvc select{max-width:100%;margin-top:6px}
+.mvw{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.mvh .tools button.on,.mvc .tools button.on{background:var(--accent);color:var(--act,#fff);border-color:var(--accent)}
+.mvh{background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;margin:0 auto}
+.mvh .tools{margin:0}.mvh>button{padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:inherit;font:inherit;cursor:pointer}
+.mvh .tools button{padding:9px 12px}

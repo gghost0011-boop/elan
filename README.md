@@ -18,6 +18,7 @@ Ouvrir le lien sur un téléphone, puis « Ajouter à l'écran d'accueil ».
 - Tâches avec heure, durée (jusqu'à 12 h), priorité, catégorie, notes et sous-tâches
 - Heure précise sans durée (par exemple un réveil à 5 h)
 - Répétition par jour de la semaine ou par modèle, copie de journées, modèles de journée et de semaine
+- Tâches liées : une tâche peut s'enchaîner après une autre et suivre son heure réelle (réveil à 5 h 12 → méditation à 5 h 12), avec une pause facultative entre les deux
 - Détection des chevauchements et repères « Maintenant / Prochaine »
 - Bouton « Que faire maintenant ? » qui propose la prochaine tâche utile
 - Ajout rapide en langage naturel : « Étude 14h 2h » crée la tâche avec son heure et sa durée
@@ -34,6 +35,12 @@ Ouvrir le lien sur un téléphone, puis « Ajouter à l'écran d'accueil ».
 - Bilan : taux de réalisation, temps prévu et temps réellement tenu, moments productifs, catégories, raisons d'interruption
 - Suivi du sommeil et journal d'humeur et d'énergie
 - Marquage d'une tâche comme terminée, interrompue ou arrêtée, avec l'heure réelle
+
+**Motivation**
+- Citation du jour (stoïcisme, sagesse, spiritualité et religions) avec sa source ; chaque famille se coupe dans les réglages
+- Bouton « J'ai du mal » sur une tâche : motif, citation adaptée, rappel de son pourquoi et de son plan B, puis micro-étapes (5 minutes seulement, décaler, ce soir, demain)
+- « Mon pourquoi » par objectif, « Plan B » par tâche, priorité du jour et bilan du soir
+- Après une série cassée : « Ne rate jamais deux fois de suite »
 
 **Sous le capot**
 - Fonctionne hors ligne, s'installe comme une application
@@ -66,6 +73,8 @@ index.html            page unique
 style.css             thèmes, mise en page, navigation du bas
 app.js                données, vues Jour/Semaine/Mois/Bilan, réglages
 goals.js              objectifs, discipline, jalons, progression
+motiv.js              citations sourcées, « J'ai du mal », priorité du jour, tâches liées
+motiv-more.js         motivation en pt, zh, hi, ar, ru
 tracking.js           sommeil, journal, écart entre heure prévue et réelle
 i18n.js               dictionnaire fr/en/es et choix de la langue
 i18n-more.js          pt, zh, hi, ar, ru
