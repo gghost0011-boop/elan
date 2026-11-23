@@ -1,5 +1,5 @@
-const CACHE = "elan-v9";
-const FILES = ["./", "./index.html", "./style.css", "./i18n.js", "./i18n-more.js", "./tracking.js", "./goals.js","./motiv.js","./motiv-more.js", "./app.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
+const CACHE = "elan-v10";
+const FILES = ["./", "./index.html", "./style.css", "./i18n.js", "./i18n-more.js", "./tracking.js", "./goals.js","./motiv.js","./motiv-more.js","./plan.js", "./app.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
   self.skipWaiting();

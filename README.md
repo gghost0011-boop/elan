@@ -75,6 +75,7 @@ app.js                données, vues Jour/Semaine/Mois/Bilan, réglages
 goals.js              objectifs, discipline, jalons, progression
 motiv.js              citations sourcées, « J'ai du mal », priorité du jour, tâches liées
 motiv-more.js         motivation en pt, zh, hi, ar, ru
+plan.js               formules gratuit/premium (tout débloqué pour l'instant) et migration des données
 tracking.js           sommeil, journal, écart entre heure prévue et réelle
 i18n.js               dictionnaire fr/en/es et choix de la langue
 i18n-more.js          pt, zh, hi, ar, ru
@@ -106,6 +107,7 @@ npm test
 
 ## Idées pour la suite
 
+- Application native (iOS et Android) avec abonnement premium mensuel ou annuel ; la couche `plan.js` est déjà en place
 - Application native pour la partager plus largement
 - Synchronisation optionnelle entre appareils
 - Relecture des traductions par des locuteurs natifs

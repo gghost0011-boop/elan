@@ -5,6 +5,7 @@ function iso(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()
 function parse(s){var a=s.split("-");return new Date(+a[0],a[1]-1,+a[2])}
 var cur=iso(new Date()),lastDay=cur;
 try{var r=JSON.parse(localStorage.getItem(K));if(r&&r.tasks)S=r;else{JSON.parse(localStorage.getItem("planner-v1")||"[]").forEach(function(t){t.date=cur;t.st=t.done?"done":"";delete t.done;S.tasks.push(t)})}}catch(e){}
+if(typeof migrate=="function")migrate(S);
 function save(){var lk=typeof chain=="function"?chain():[];if(lk.length)setTimeout(function(){toast("⟦Heure ajustée : {0} à {1}|"+lk[0]+"|"+(find(S.tasks.filter(function(x){return x.title==lk[0]})[0].id).start)+"⟧")},0);try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 function uid(){return Date.now()+Math.floor(Math.random()*1e4)}
 function mins(s){var p=s.split(":");return +p[0]*60+ +p[1]}
@@ -40,7 +41,7 @@ function applyTheme(){
   try{var m=document.querySelector("meta[name=theme-color]"),b=getComputedStyle(r).getPropertyValue("--bg").trim();if(m&&b)m.content=b}catch(e){}}
 function styleBtns(){var dk=isDark();return Object.keys(STY).map(function(k){var a=STY[k],c=a.length>1?(dk?[a[5],a[8]]:[a[1],a[4]]):(dk?["#161615","#6b9bff"]:["#f6f5f1","#2f6fed"]);return'<button class="sty'+((S.style||"elan")==k?" on":"")+'" data-act="sty" data-id="'+k+'" style="background:'+c[0]+";color:"+(dk?"#f0efea":"#1d1d1b")+'"><i style="background:'+c[1]+'"></i><span>⟦'+a[0]+'⟧</span></button>'}).join("")}
 function dlf(n,t,ty){var f=new File([t],n,{type:ty});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){})}else{var a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=n;a.click()}}
-function restore(f){if(!f)return;var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(!o.tasks||!o.tpls)throw 0;if(!confirm(mk("⟦Remplacer toutes les données actuelles par la sauvegarde ({0} tâches)?|"+o.tasks.length+"⟧")))return;S=o;save();applyTheme();setLang();render();toast("⟦Sauvegarde restaurée⟧")}catch(e){toast("⟦Fichier invalide⟧")}};r.readAsText(f)}
+function restore(f){if(!f)return;var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(!o.tasks||!o.tpls)throw 0;if((+o.v||0)>DV){toast("⟦Cette sauvegarde vient d’une version plus récente d’Élan. Mets l’application à jour.⟧");return}migrate(o);if(!confirm(mk("⟦Remplacer toutes les données actuelles par la sauvegarde ({0} tâches)?|"+o.tasks.length+"⟧")))return;S=o;save();applyTheme();setLang();render();toast("⟦Sauvegarde restaurée⟧")}catch(e){toast("⟦Fichier invalide⟧")}};r.readAsText(f)}
 function ics(){
   var f=function(x){return iso(x).replace(/-/g,"")+"T"+p2(x.getHours())+p2(x.getMinutes())+"00"},q2=function(z){return String(z||"").replace(/[\\;,]/g,"\\$&").replace(/\n/g,"\\n")},
   L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Ma journee//FR","CALSCALE:GREGORIAN"],td=iso(new Date()),stamp=new Date().toISOString().replace(/[-:]|\.\d+/g,""),
