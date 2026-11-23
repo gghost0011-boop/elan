@@ -150,3 +150,13 @@ main{padding-bottom:96px}
 .row2{display:flex;justify-content:center;gap:8px;margin:6px 0 4px}.row2 .optb{display:inline-block;margin:0}
 .sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:12px 0 4px}
 .ms{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:.92rem}.ms span:nth-of-type(1){flex:1}.ms.ok span{text-decoration:line-through;opacity:.6}.ms.late{color:var(--hi)}
+/* Arabe : lecture de droite à gauche (la frise horaire reste de gauche à droite) */
+html[dir=rtl] .tl{direction:ltr}
+html[dir=rtl] .task{padding:12px 18px 12px 12px}
+html[dir=rtl] .task::before{left:auto;right:7px}
+html[dir=rtl] .wi{padding:6px 12px 6px 6px}
+html[dir=rtl] .wi::before{left:auto;right:0}
+html[dir=rtl] .fab{right:auto;left:16px}
+html[dir=rtl] .grip{right:auto;left:0}
+html[dir=rtl] .why,html[dir=rtl] .gcard,html[dir=rtl] .gn,html[dir=rtl] .odh,html[dir=rtl] .gh,html[dir=rtl] .nav.solo b{text-align:right}
+html[dir=rtl] .wd label{margin-right:0;margin-left:8px}
