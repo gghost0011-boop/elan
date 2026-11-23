@@ -143,3 +143,10 @@ main{padding-bottom:96px}
 #toast.cb{pointer-events:auto;cursor:pointer}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90%}
 #toast.on{opacity:1}
+
+.gg.ok{border-color:var(--lo)}.gg.ok .gh{color:var(--lo)}
+.wnb{margin-left:6px;padding:3px 9px;border:1px solid var(--accent);color:var(--accent);background:none;border-radius:99px;cursor:pointer;font-size:.78rem}
+.sug{border-color:var(--accent)}
+.row2{display:flex;justify-content:center;gap:8px;margin:6px 0 4px}.row2 .optb{display:inline-block;margin:0}
+.sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:12px 0 4px}
+.ms{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:.92rem}.ms span:nth-of-type(1){flex:1}.ms.ok span{text-decoration:line-through;opacity:.6}.ms.late{color:var(--hi)}

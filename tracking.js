@@ -1,10 +1,10 @@
 /* Ma journée — sommeil, journal et écart entre heure prévue et réelle */
 var SLP=/dorm|sommeil|sleep|coucher/i;
 function wake(t){if(t.st=="done"||!t.dur||!SLP.test(t.title))return false;var bt=prompt(tr("Heure du coucher (HH:MM)"),hhmm(mins(t.start))),m=bt&&/(\d{1,2})\s*[h:]\s*(\d{2})?/.exec(bt);if(!m)return false;resume(t);t.st="done";t.as=hhmm(Math.min(23,+m[1])*60+(+m[2]||0));t.ae=hhmm(new Date().getHours()*60+new Date().getMinutes());t.at=nowHM();t.why="";return true}
-function jrHTML(){var j=(S.jr||{})[cur]||{},mood=["😞","🙁","😐","🙂","😄"];
-  var h='<button class="optb" style="margin:0 auto 4px" data-act="jro">📝 ⟦Journal⟧ '+(j.m?mood[j.m-1]:"")+(j.e?" ⚡"+j.e:"")+" "+(jro?"▴":"▾")+'</button>';
+function jrHTML(part){var j=(S.jr||{})[cur]||{},mood=["😞","🙁","😐","🙂","😄"];
+  var bt='<button class="optb" data-act="jro">📝 ⟦Journal⟧ '+(j.m?mood[j.m-1]:"")+(j.e?" ⚡"+j.e:"")+" "+(jro?"▴":"▾")+'</button>',h="";
   if(jro)h+='<div class="card"><div>⟦Humeur⟧ '+mood.map(function(x,i){return'<button class="gl2'+(j.m==i+1?" on":"")+'" data-act="jm" data-k="'+(i+1)+'">'+x+'</button>'}).join(" ")+'</div><div style="margin-top:8px">⟦Énergie⟧ '+[1,2,3,4,5].map(function(i){return'<button class="gl2'+(j.e==i?" on":"")+'" data-act="je" data-k="'+i+'">'+i+'</button>'}).join(" ")+'</div><textarea id="jrn" rows="3" placeholder="⟦Qu’est-ce qui t’a aidé ou bloqué aujourd’hui ?⟧" style="width:100%;margin-top:8px;padding:9px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font:inherit;color:inherit">'+esc(j.n||"")+'</textarea></div>';
-  return h}
+  return part==0?bt:h}
 function sleepHTML(l){var ss=l.filter(function(t){return t.st=="done"&&t.as&&t.ae&&SLP.test(t.title)}).sort(function(a,b){return a.date<b.date?-1:1});if(!ss.length)return"";
   var n=ss.length,av=function(a){return a.reduce(function(x,y){return x+y},0)/a.length},bt=ss.map(function(t){return(mins(t.as)-1080+1440)%1440}),mb=av(bt),sd=Math.sqrt(av(bt.map(function(x){return(x-mb)*(x-mb)})));
   return'<div class="card"><b>⟦Sommeil⟧</b> <span class="mut">⟦{0} nuits enregistrées|'+n+'⟧</span><div>⟦Durée moyenne : {0}|'+dl(Math.round(av(ss.map(real))))+'⟧</div><div>⟦Coucher moyen : {0}|'+fmt(Math.round(mb+1080)%1440)+'⟧ · ⟦Réveil moyen : {0}|'+fmt(Math.round(av(ss.map(function(t){return mins(t.ae)}))))+'⟧</div>'+(n>2?'<div class="mut">⟦Régularité du coucher : ± {0} min|'+Math.round(sd)+'⟧</div>':"")+'<div class="chart" style="height:80px">'+ss.slice(-10).map(function(t){return'<div class="col"><div class="cb" style="height:'+Math.min(70,real(t)/720*70)+'px"><i style="height:100%"></i></div><small>'+parse(t.date).getDate()+'</small></div>'}).join("")+'</div></div>'}
