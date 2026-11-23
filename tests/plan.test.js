@@ -23,3 +23,8 @@ test("tout est débloqué avant la publication, puis le premium se verrouille", 
   a.w.eval("S.plan={tier:'premium',period:'month',until:'2000-01-01'}");
   assert.equal(a.w.eval("can('sync')"), false, "abonnement expiré");
 }));
+
+test("la carte Formule reste cachée pour les utilisateurs normaux", () => withApp({}, async (a) => {
+  a.click(".gear");
+  assert.doesNotMatch(a.text(), /Tout est débloqué|Version des données/);
+}));
