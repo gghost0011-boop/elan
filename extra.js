@@ -65,13 +65,13 @@ function wrSheet(){if(!wro)return"";var r=wrTop();
 function xTop(){
   var b=demoOn()?'<div class="card sug">👀 ⟦Mode démo : données d’exemple. Tes vraies données sont intactes.⟧ <button data-act="demox">⟦Quitter la démo⟧</button></div>':"";
   if(view!="d"||obNeed())return b;
-  b+=qaHTML();
+  b+=qaHTML()+plHTML()+ntHTML();
   if(cur!=iso(new Date())||parse(cur).getDay()!=0||wrTop())return b;
   return b+'<div class="card sug">📝 ⟦C’est dimanche : prends 2 minutes pour faire le bilan de ta semaine.⟧ <button data-act="wr">⟦Faire le bilan⟧</button></div>'}
 function xBil(){return wrCard()+insHTML()}
 function xSet(){return instHTML()+'<div class="card"><b>⟦Confort⟧</b><div class="tools"><button data-act="soft" class="'+(S.soft?"on":"")+'">⟦Mode doux⟧ ⟦'+(S.soft?"activé":"désactivé")+'⟧</button></div><div class="mut">⟦Cache « Heure passée », les séries et les rappels de retard. Tes tâches restent affichées.⟧</div></div>'+'<div class="card"><b>⟦Accessibilité⟧</b><br><label for="fs">⟦Taille du texte⟧</label> <select id="fs">'+[["Normale"],["Grande"],["Très grande"]].map(function(x,i){return'<option value="'+i+'"'+((S.fs||0)==i?" selected":"")+'>⟦'+x[0]+'⟧</option>'}).join("")+'</select><br><button data-act="demo">⟦👀 Voir une démo⟧</button> <span class="mut">⟦Données d’exemple, séparées des tiennes.⟧</span><br><a href="privacy.html">⟦Confidentialité⟧</a></div>'}
-function xHTML(){return obHTML()+wrSheet()+rtSheet()+sfSheet()+trSheet()}
-function xBusy(){var f=document.activeElement;return!!((f&&(f.id=="jrn"||f.id=="qa"))||wro||rto||sfo||tro||(view=="d"&&obNeed()))}
+function xHTML(){return imSheet()+obHTML()+wrSheet()+rtSheet()+sfSheet()+trSheet()}
+function xBusy(){var f=document.activeElement;return!!((f&&(f.id=="jrn"||f.id=="qa"))||wro||rto||sfo||tro||imo||(view=="d"&&obNeed()))}
 function xAfter(){
   document.documentElement.style.fontSize=[100,112,125][S.fs||0]+"%";document.body.classList.toggle("soft",!!S.soft);xLaunch();
   var p=document.getElementById("pv"),n=document.getElementById("nx");
@@ -129,7 +129,7 @@ X("Quitter la démo","Exit demo","Salir de la demo");
 X("Données d’exemple, séparées des tiennes.","Sample data, separate from yours.","Datos de ejemplo, separados de los tuyos.");
 X("Supprimer","Delete","Eliminar");
 
-function xTools(){return'<button data-act="tro">🗑 ⟦Corbeille⟧</button><button data-act="rto">🔁 ⟦Routines⟧</button><button data-act="sfo">⏩ ⟦Décaler la suite⟧</button>'}
+function xTools(){return'<button data-act="imo">📥 ⟦Importer une liste⟧</button><button data-act="tro">🗑 ⟦Corbeille⟧</button><button data-act="rto">🔁 ⟦Routines⟧</button><button data-act="sfo">⏩ ⟦Décaler la suite⟧</button>'}
 function rtParse(txt){return String(txt||"").split("\n").map(function(l){return l.trim()}).filter(Boolean).slice(0,12).map(function(l){
   var m=/^(.*?)[\s,;:\-–]*(\d+)\s*(h|min|m)?\s*$/i.exec(l),dur=30,title=l;
   if(m&&m[1].trim()){title=m[1].trim();dur=+m[2]*(/^h/i.test(m[3]||"")?60:1)}
@@ -175,7 +175,7 @@ function demoData(){
   wr[pm]={t:T("Commencer l’étude avant 9 h, sans téléphone.","Start studying before 9 am, phone away."),d:addd(pm,6)};
   var g={id:9100001,start:addd(td,-14),log:[],why:T("Travailler à l’international un jour.","Work internationally one day."),title:T("Parler anglais couramment","Speak fluent English"),date:addd(td,76),target:60,unit:"h",mode:"sum",vs:0,type:"lang",acts:[],ms:[{id:9100002,title:T("Premier podcast sans sous-titres","First podcast without subtitles"),date:addd(td,10),done:""}]};
   var r=[{id:9200001,name:T("Routine du matin","Morning routine"),start:"06:30",items:[{title:T("Réveil","Wake up"),dur:0,ag:0,pri:2},{title:T("Méditation","Meditation"),dur:15,ag:0,pri:2},{title:T("Déjeuner","Breakfast"),dur:20,ag:10,pri:2}]}];
-  return{tasks:t,tpls:[],gen:{},goals:[g],jr:jr,pr:pr,wr:wr,rt:r,ob:1,v:typeof DV!="undefined"?DV:2}}
+  return{tasks:t,tpls:[],gen:{},goals:[g],jr:jr,pr:pr,wr:wr,rt:r,nt:[{id:9300001,title:T("Appeler le dentiste","Call the dentist"),dur:15,date:td}],ob:1,v:typeof DV!="undefined"?DV:2}}
 function xReload(){try{location.reload()}catch(e){}}
 function xAct2(a,b){var id=b&&b.dataset?b.dataset.id:null;if(xAct3(a,b,id))return true;
   if(a=="demo"){try{localStorage.setItem("planner-demo",JSON.stringify(demoData()));localStorage.setItem("elan-demo","1")}catch(e){}xReload();return true}
@@ -233,6 +233,18 @@ function trSheet(){if(!tro)return"";
 function xShare(n,j){try{var f=new File([j],n,{type:"application/json"});
   if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:n}).then(function(){S.bk=iso(new Date());save();render()}).catch(function(){});return true}}catch(e){}return false}
 function xAct3(a,b,id){
+  if(a=="imo"){imo=1;return true}
+  if(a=="imx"){imo=0;return true}
+  if(a=="img"){var ta=document.getElementById("iml"),ls=((ta&&ta.value)||"").split("\n").map(function(l){return l.trim()}).filter(Boolean).slice(0,40),c=0;
+    ls.forEach(function(l){qaPut(qaObj(l));c++});imo=0;if(c)setTimeout(function(){toast("⟦{0} tâches importées|"+c+"⟧")},80);return true}
+  if(a=="ntp"||a=="ntd"||a=="ntx"){var it=(S.nt||[]).filter(function(q){return q.id==id})[0];if(!it)return true;
+    S.nt=S.nt.filter(function(q){return q.id!=id});
+    if(a=="ntp"){var s=freeSlot(cur,it.dur||30);S.tasks.push({id:uid(),st:"",title:it.title,start:hhmm(s),dur:it.dur||30,pri:2,date:cur,cat:"",note:"",pb:"",af:"",ag:0});save();setTimeout(function(){toast("⟦Placée à {0}|"+fmt(s)+"⟧")},80)}
+    else if(a=="ntd"){S.tasks.push({id:uid(),st:"done",at:nowHM(),title:it.title,start:hhmm(new Date().getHours()*60+new Date().getMinutes()),dur:0,pri:2,date:iso(new Date()),cat:"",note:"",pb:"",af:"",ag:0});save()}
+    else save();
+    return true}
+  if(a=="plk"){S.plz=iso(new Date());save();return true}
+  if(a=="plr"){var q=plCalc();if(q){q.pick.forEach(function(t){t.date=addd(iso(new Date()),1)});save();var k=q.pick.length;setTimeout(function(){toast("⟦{0} tâches reportées à demain|"+k+"⟧")},80)}return true}
   if(a=="soft"){S.soft=S.soft?0:1;save();return true}
   if(a=="qa"){qaAdd();return true}
   if(a=="inst"){if(xip){xip.prompt();xip=null}return true}
@@ -269,10 +281,11 @@ function tipHTML(k){if(obNeed()||(S.tips&&S.tips[k]))return"";
 document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-act=tipx]");if(!b)return;
   S.tips=S.tips||{};S.tips[b.dataset.k]=1;save();var t=b.closest(".tip");if(t)t.remove()});
 function qaHTML(){return'<div class="qa"><input id="qa" maxlength="120" enterkeyhint="done" placeholder="⟦Ajouter vite : Appeler Marc 14h 30 min⟧" aria-label="⟦Ajouter une tâche rapidement⟧"><button type="button" data-act="qa" class="on" aria-label="⟦Ajouter⟧">＋</button></div>'}
+function qaObj(v){var o={title:v,start:"",dur:30,pri:2,date:cur,cat:"",note:"",pb:"",af:"",ag:0};qp(o);return o}
+function qaPut(o){var r=0;if(o.start){S.tasks.push(Object.assign({id:uid(),st:""},o));r=1}
+  else{S.nt=S.nt||[];S.nt.push({id:uid(),title:o.title,dur:o.dur,date:cur})}save();return r}
 function qaAdd(){var i=document.getElementById("qa"),v=((i&&i.value)||"").trim();if(!v)return;
-  var n=new Date(),nm=Math.ceil((n.getHours()*60+n.getMinutes()+1)/15)*15,def=cur==iso(n)&&nm<1440?hhmm(nm):"09:00";
-  var o={title:v,start:def,dur:30,pri:2,date:cur,cat:"",note:"",pb:"",af:"",ag:0};qp(o);
-  S.tasks.push(Object.assign({id:uid(),st:""},o));save();setTimeout(function(){toast("⟦Tâche ajoutée à {0}|"+fmt(mins(o.start))+"⟧")},80)}
+  var o=qaObj(v),w=qaPut(o);setTimeout(function(){toast(w?"⟦Tâche ajoutée à {0}|"+fmt(mins(o.start))+"⟧":"⟦Ajoutée à « Sans heure précise ». Touche Placer pour lui donner un créneau.⟧")},80)}
 document.addEventListener("keydown",function(e){if(e.key=="Enter"&&e.target&&e.target.id=="qa"){e.preventDefault();qaAdd();render()}});
 function insHTML(){
   var td=iso(new Date()),from=addd(td,-28),done=function(t){return t.st=="done"},
@@ -293,3 +306,39 @@ function xLaunch(){if(xq)return;xq=1;var q=location.search||"";
   if(/[?&]add=1/.test(q)){sh=1;editId=null;render()}
   else if(/[?&]now=1/.test(q)){var b=document.querySelector("[data-act=wnow]");if(b)b.click()}
   if(/[?&](add|now)=1/.test(q)){try{history.replaceState(null,"",location.pathname+(/[?&]admin\b/.test(q)?"?admin":""))}catch(e){}}}
+
+/* ===== Tâches sans heure, planifier ma journée, import de liste ===== */
+var imo=0;
+X("Sans heure précise","No set time","Sin hora fija");
+X("Placer","Place","Colocar");
+X("Ajoutée à « Sans heure précise ». Touche Placer pour lui donner un créneau.","Added to “No set time”. Tap Place to give it a slot.","Añadida a «Sin hora fija». Toca Colocar para darle un hueco.");
+X("Placée à {0}","Placed at {0}","Colocada a las {0}");
+X("Journée chargée","Busy day","Día cargado");
+X("{0} prévues, {1} disponibles aujourd’hui.","{0} planned, {1} left today.","{0} previstas, {1} disponibles hoy.");
+X("Reporter à demain : {0}","Move to tomorrow: {0}","Pasar a mañana: {0}");
+X("Reporter {0} tâches à demain","Move {0} tasks to tomorrow","Pasar {0} tareas a mañana");
+X("{0} tâches reportées à demain","{0} tasks moved to tomorrow","{0} tareas pasadas a mañana");
+X("Garder tel quel","Keep as is","Dejar así");
+X("Importer une liste","Import a list","Importar una lista");
+X("Colle une tâche par ligne. L’heure et la durée sont reconnues (ex. Appeler Marc 14h 30 min). Sans heure, la tâche va dans « Sans heure précise ».","Paste one task per line. Time and duration are recognised (e.g. Call Marc 2pm 30 min). With no time, the task goes to “No set time”.","Pega una tarea por línea. Se reconocen la hora y la duración (p. ej. Llamar a Marc 14h 30 min). Sin hora, la tarea va a «Sin hora fija».");
+X("Importer","Import","Importar");
+X("{0} tâches importées","{0} tasks imported","{0} tareas importadas");
+function freeSlot(d,dur){var td=iso(new Date()),n=new Date(),from=d==td?Math.ceil((n.getHours()*60+n.getMinutes()+1)/15)*15:480,
+  L=day(d).filter(function(t){return t.dur}).map(function(t){return[mins(t.start),mins(t.start)+t.dur]});
+  for(var s=from;s+dur<=1380;s+=15){if(!L.some(function(r){return s<r[1]&&s+dur>r[0]}))return s}
+  return Math.max(0,Math.min(from,1380-dur))}
+function ntList(){var td=iso(new Date());return(S.nt||[]).filter(function(q){return q.date==cur||(cur==td&&q.date<td)})}
+function ntHTML(){var l=ntList();if(!l.length)return"";
+  return'<div class="card nt"><b>📋 ⟦Sans heure précise⟧ ('+l.length+')</b>'+l.map(function(q){return'<div class="od"><span class="odt">'+esc(q.title)+(q.dur?' <span class="mut">'+dl(q.dur)+'</span>':"")+'</span><span><button data-act="ntp" data-id="'+q.id+'" class="on">⟦Placer⟧</button><button data-act="ntd" data-id="'+q.id+'" aria-label="⟦Terminée⟧">✓</button><button data-act="ntx" data-id="'+q.id+'" aria-label="⟦Supprimer⟧">✕</button></span></div>'}).join("")+'</div>'}
+function plCalc(){var td=iso(new Date());if(cur!=td||S.plz==td)return null;var n=new Date(),nm=n.getHours()*60+n.getMinutes();if(nm>=1020)return null;
+  var P=day(td).filter(function(t){return!t.st}),av=1320-Math.max(nm,420),
+    tot=P.reduce(function(s,t){return s+(t.dur||0)},0)+(S.nt||[]).filter(function(q){return q.date<=td}).length*30;
+  if(tot<=av)return null;
+  var lk={};S.tasks.forEach(function(t){if(t.af)lk[t.af]=1});
+  var c=P.filter(function(t){return!t.tp&&!t.af&&!lk[t.id]&&t.dur}).sort(function(a,b){return b.pri-a.pri||mins(b.start)-mins(a.start)}),pick=[],left=tot;
+  for(var i=0;i<c.length&&left>av;i++){pick.push(c[i]);left-=c[i].dur}
+  return{tot:tot,av:av,pick:pick}}
+function plHTML(){var q=plCalc();if(!q)return"";
+  return'<div class="card sug">⚖️ <b>⟦Journée chargée⟧</b> ⟦{0} prévues, {1} disponibles aujourd’hui.|'+dl(q.tot)+'|'+dl(q.av)+'⟧'+(q.pick.length?'<div class="mut">⟦Reporter à demain : {0}|'+q.pick.map(function(t){return esc(t.title)}).join(", ")+'⟧</div><div class="tools" style="margin:6px 0 0"><button data-act="plr" class="on">⟦Reporter {0} tâches à demain|'+q.pick.length+'⟧</button><button data-act="plk">⟦Garder tel quel⟧</button></div>':'<div class="tools" style="margin:6px 0 0"><button data-act="plk">⟦Garder tel quel⟧</button></div>')+'</div>'}
+function imSheet(){if(!imo)return"";
+  return'<div class="shd" data-act="imx"></div><div class="sheet mvh" role="dialog" aria-modal="true"><b class="full">📥 ⟦Importer une liste⟧</b><div class="mut full">⟦Colle une tâche par ligne. L’heure et la durée sont reconnues (ex. Appeler Marc 14h 30 min). Sans heure, la tâche va dans « Sans heure précise ».⟧</div><textarea class="full" id="iml" rows="7"></textarea><div class="tools full" style="margin:4px 0 0"><button data-act="img" class="on">⟦Importer⟧</button><button data-act="imx" class="ghost">⟦Fermer⟧</button></div></div>'}

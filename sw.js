@@ -1,4 +1,4 @@
-const CACHE = "elan-v13";
+const CACHE = "elan-v14";
 const FILES = ["./", "./index.html", "./style.css", "./i18n.js", "./i18n-more.js", "./tracking.js", "./goals.js","./motiv.js","./motiv-more.js","./plan.js", "./extra.js", "./privacy.html", "./app.js", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
