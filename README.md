@@ -45,6 +45,7 @@ Ouvrir le lien sur un téléphone, puis « Ajouter à l'écran d'accueil ».
 - Après une série cassée : « Ne rate jamais deux fois de suite »
 - Routines : une suite de tâches enchaînées (créée depuis du texte ou depuis une chaîne du jour) qu'on place sur n'importe quel jour
 - « Décaler la suite » : repousse d'un coup les tâches qui n'ont pas commencé, les tâches liées suivent
+- Corbeille de 30 jours, guide d'installation intégré (iPhone, Android, ordinateur) et sauvegarde par la feuille de partage du téléphone
 - Mode démo : données d'exemple stockées à part, sans toucher aux vraies données
 - Présentation en 3 étapes au premier lancement (jamais affichée à qui a déjà des données)
 - Bilan de la semaine : chiffres clés, meilleur jour, priorités tenues et une décision pour la semaine suivante
@@ -66,7 +67,7 @@ Ouvrir le lien sur un téléphone, puis « Ajouter à l'écran d'accueil ».
 | Rendu | Gabarits HTML et délégation d'événements (`data-act`), sans framework |
 | Internationalisation | Textes balisés dans le code, dictionnaire par langue et repli sur l'anglais ; bascule `dir="rtl"` pour l'arabe |
 | Thèmes | Variables CSS : 7 styles combinés à clair, sombre ou automatique |
-| Tests | 51 tests automatisés (`node:test` et jsdom) avec une horloge figée, lancés à chaque envoi par GitHub Actions |
+| Tests | 61 tests automatisés (`node:test` et jsdom) avec une horloge figée, lancés à chaque envoi par GitHub Actions |
 | Poids | Environ 200 Ko au total, aucune dépendance à l'exécution |
 
 Quelques points de conception :

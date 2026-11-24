@@ -80,7 +80,7 @@ function mvDayHTML(td,all){
   return h+'</div>'}
 /* Fiche « J'ai du mal » */
 function mvHelpHTML(){
-  if(!hm)return"";var t=find(hm.id);if(!t)return"";var g=t.gl&&goalOf(t.gl),why=g&&g.why,rs=[["t","Fatigue"],["l","Pas envie"],["d","Découragé"],["o","Trop de choses"]],h='<div class="shd" data-act="hmx"></div><div class="sheet mvh"><b class="full">💪 ⟦J’ai du mal⟧ — '+esc(t.title)+'</b><div class="mut full">⟦Qu’est-ce qui coince ?⟧</div><div class="tools full" style="margin:0">'+rs.map(function(r){return'<button data-act="hmr" data-k="'+r[0]+'" class="'+(hm.r==r[0]?"on":"")+'">⟦'+r[1]+'⟧</button>'}).join("")+'</div>';
+  if(!hm)return"";var t=find(hm.id);if(!t)return"";var g=t.gl&&goalOf(t.gl),why=g&&g.why,rs=[["t","Fatigue"],["l","Pas envie"],["d","Découragé"],["o","Trop de choses"]],h='<div class="shd" data-act="hmx"></div><div class="sheet mvh"><b class="full">💪 ⟦J’ai du mal⟧ — '+esc(t.title)+'</b><div class="mut full">⟦Qu’est-ce qui coince ?⟧</div>'+(typeof tipHTML=="function"?tipHTML("hm"):"")+'<div class="tools full" style="margin:0">'+rs.map(function(r){return'<button data-act="hmr" data-k="'+r[0]+'" class="'+(hm.r==r[0]?"on":"")+'">⟦'+r[1]+'⟧</button>'}).join("")+'</div>';
   if(hm.r){h+='<div class="full">'+mvQuoteHTML(mvQuote(hm.r,t.id+hm.r))+'</div>';
     if(why)h+='<div class="full mvw"><b>⟦Ton pourquoi⟧</b> : '+esc(why)+'</div>';
     if(t.pb)h+='<div class="full mvw"><b>⟦Ton plan B⟧</b> : '+esc(t.pb)+'</div>';
@@ -104,7 +104,9 @@ function lkEnd(p){var s=mins(p.start);if(p.st&&p.at){var e=mins(String(p.at).rep
 function chain(){var ch=[];
   for(var k=0;k<6;k++){var moved=false;
     S.tasks.forEach(function(t){if(!t.af)return;var p=find(t.af);if(!p||p.date!=t.date||p.id==t.id){delete t.af;return}
-      if(t.st)return;var ns=hhmm(Math.min(1439,lkEnd(p)+(+t.ag||0)));if(ns!=t.start){t.start=ns;moved=true;if(ch.indexOf(t.title)<0)ch.push(t.title)}});
+      if(t.st)return;var pe=lkEnd(p);
+      if(t.cs!==undefined&&t.start!=t.cs){var d=mins(t.start)-pe;if(d>=0)t.ag=d;else{delete t.af;delete t.cs;return}}
+      var ns=hhmm(Math.min(1439,pe+(+t.ag||0)));if(ns!=t.start){t.start=ns;moved=true;if(ch.indexOf(t.title)<0)ch.push(t.title)}t.cs=t.start});
     if(!moved)break}
   return ch}
 MVT2=[["Enchaîner après…","Chain after…","Encadenar después de…"],["Aucune (heure fixe)","None (fixed time)","Ninguna (hora fija)"],["après","after","después de"],["démarre à la fin de la tâche précédente","starts when the previous task ends","empieza al terminar la anterior"],["Heure ajustée : {0} à {1}","Time adjusted: {0} at {1}","Hora ajustada: {0} a las {1}"]];
