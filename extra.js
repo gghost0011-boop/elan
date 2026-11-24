@@ -244,7 +244,7 @@ function xAct3(a,b,id){
     else save();
     return true}
   if(a=="plk"){S.plz=iso(new Date());save();return true}
-  if(a=="plr"){var q=plCalc();if(q){q.pick.forEach(function(t){t.date=addd(iso(new Date()),1)});save();var k=q.pick.length;setTimeout(function(){toast("⟦{0} tâches reportées à demain|"+k+"⟧")},80)}return true}
+  if(a=="plr"){var q=plCalc();if(q){var ids={};q.pick.forEach(function(t){ids[t.id]=1});q.pick.forEach(function(t){if(t.af&&!ids[t.af]){t.af="";t.ag=0}t.date=addd(iso(new Date()),1)});save();var k=q.pick.length;setTimeout(function(){toast("⟦{0} tâches reportées à demain|"+k+"⟧")},80)}return true}
   if(a=="soft"){S.soft=S.soft?0:1;save();return true}
   if(a=="qa"){qaAdd();return true}
   if(a=="inst"){if(xip){xip.prompt();xip=null}return true}
@@ -334,11 +334,16 @@ function plCalc(){var td=iso(new Date());if(cur!=td||S.plz==td)return null;var n
   var P=day(td).filter(function(t){return!t.st}),av=1320-Math.max(nm,420),
     tot=P.reduce(function(s,t){return s+(t.dur||0)},0)+(S.nt||[]).filter(function(q){return q.date<=td}).length*30;
   if(tot<=av)return null;
-  var lk={};S.tasks.forEach(function(t){if(t.af)lk[t.af]=1});
-  var c=P.filter(function(t){return!t.tp&&!t.af&&!lk[t.id]&&t.dur}).sort(function(a,b){return b.pri-a.pri||mins(b.start)-mins(a.start)}),pick=[],left=tot;
-  for(var i=0;i<c.length&&left>av;i++){pick.push(c[i]);left-=c[i].dur}
-  return{tot:tot,av:av,pick:pick}}
+  var ids={},tm=addd(td,1),mv=function(t){return!t.tp&&!t.gl};P.forEach(function(t){ids[t.id]=1});
+  var kids=function(r){var o=[],q=[r.id];while(q.length){var c=q.shift();P.forEach(function(t){if(t.af==c&&mv(t)){o.push(t);q.push(t.id)}})}return o};
+  var G=P.filter(function(t){return mv(t)&&t.dur&&!(t.af&&ids[t.af])}).map(function(r){var m=[r].concat(kids(r));return{r:r,m:m,d:m.reduce(function(s,t){return s+(t.dur||0)},0)}}),
+    rep=0;
+  G.sort(function(a,b){return b.r.pri-a.r.pri||mins(b.r.start)-mins(a.r.start)});
+  var pick=[],left=tot;
+  for(var k=0;k<G.length&&left>av;k++){G[k].m.forEach(function(t){pick.push(t)});left-=G[k].d}
+  return{tot:tot,av:av,pick:pick,rep:rep}}
 function plHTML(){var q=plCalc();if(!q)return"";
-  return'<div class="card sug">⚖️ <b>⟦Journée chargée⟧</b> ⟦{0} prévues, {1} disponibles aujourd’hui.|'+dl(q.tot)+'|'+dl(q.av)+'⟧'+(q.pick.length?'<div class="mut">⟦Reporter à demain : {0}|'+q.pick.map(function(t){return esc(t.title)}).join(", ")+'⟧</div><div class="tools" style="margin:6px 0 0"><button data-act="plr" class="on">⟦Reporter {0} tâches à demain|'+q.pick.length+'⟧</button><button data-act="plk">⟦Garder tel quel⟧</button></div>':'<div class="tools" style="margin:6px 0 0"><button data-act="plk">⟦Garder tel quel⟧</button></div>')+'</div>'}
+  return'<div class="card sug">⚖️ <b>⟦Journée chargée⟧</b> ⟦{0} prévues, {1} disponibles aujourd’hui.|'+dl(q.tot)+'|'+dl(q.av)+'⟧'+(q.pick.length?'<div class="mut">⟦Reporter à demain : {0}|'+q.pick.map(function(t){return esc(t.title)}).join(", ")+'⟧</div><div class="tools" style="margin:6px 0 0"><button data-act="plr" class="on">⟦Reporter {0} tâches à demain|'+q.pick.length+'⟧</button><button data-act="plk">⟦Garder tel quel⟧</button></div>':'<div class="mut">⟦Rien à reporter automatiquement : les tâches restantes sont répétées, liées à un objectif ou sans durée. On ne les déplace pas, pour garder tes séries et ta progression justes. Tu peux en décaler ou en supprimer à la main.⟧</div><div class="tools" style="margin:6px 0 0"><button data-act="plk">⟦Garder tel quel⟧</button></div>')+'</div>'}
 function imSheet(){if(!imo)return"";
   return'<div class="shd" data-act="imx"></div><div class="sheet mvh" role="dialog" aria-modal="true"><b class="full">📥 ⟦Importer une liste⟧</b><div class="mut full">⟦Colle une tâche par ligne. L’heure et la durée sont reconnues (ex. Appeler Marc 14h 30 min). Sans heure, la tâche va dans « Sans heure précise ».⟧</div><textarea class="full" id="iml" rows="7"></textarea><div class="tools full" style="margin:4px 0 0"><button data-act="img" class="on">⟦Importer⟧</button><button data-act="imx" class="ghost">⟦Fermer⟧</button></div></div>'}
+X("Rien à reporter automatiquement : les tâches restantes sont répétées, liées à un objectif ou sans durée. On ne les déplace pas, pour garder tes séries et ta progression justes. Tu peux en décaler ou en supprimer à la main.","Nothing can be moved automatically: the remaining tasks repeat, belong to a goal or have no duration. They are not moved, to keep your streaks and progress accurate. You can shift or delete some by hand.","Nada que pasar automáticamente: las tareas restantes se repiten, son de un objetivo o no tienen duración. No se mueven, para que tus rachas y progreso sean correctos. Puedes moverlas o borrarlas a mano.");
