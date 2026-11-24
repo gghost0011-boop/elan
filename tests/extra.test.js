@@ -288,3 +288,29 @@ test("import : une tâche par ligne, avec ou sans heure", () => withApp({ state:
   assert.ok(s.tasks.find((t) => t.title == "Ranger" && t.start == "16:00"));
   assert.deepEqual(s.nt.map((q) => q.title), ["Courses"]);
 }));
+
+test("journée chargée : une chaîne de tâches liées est reportée en bloc", () => withApp({ state: { tasks: [
+  task({ id: 51, title: "Gros projet", start: "10:30", dur: 300, pri: 1 }),
+  task({ id: 52, title: "Base", start: "16:00", dur: 240, pri: 3 }),
+  task({ id: 53, title: "Suite", start: "20:00", dur: 240, pri: 3, af: 52, ag: 0 }),
+], tpls: [], ob: 1 } }, async (a) => {
+  assert.match(a.text(), /Reporter 2 tâches à demain/);
+  a.click("[data-act=plr]");
+  const s = a.state().tasks;
+  assert.equal(s.find((t) => t.id == 52).date, day(1));
+  assert.equal(s.find((t) => t.id == 53).date, day(1));
+  assert.equal(s.find((t) => t.id == 53).af, 52);
+}));
+
+test("journée chargée : les tâches répétées ou d’objectif ne sont jamais déplacées, et la carte explique pourquoi", () => withApp({ state: { tasks: [
+  task({ id: 61, title: "Anglais", start: "10:30", dur: 300, pri: 3, tp: 7, gl: 9 }),
+  task({ id: 62, title: "Sport", start: "16:00", dur: 240, pri: 3, tp: 8 }),
+  task({ id: 63, title: "Lecture", start: "20:00", dur: 240, pri: 3, gl: 9 }),
+], tpls: [], ob: 1 } }, async (a) => {
+  assert.match(a.text(), /Journée chargée/);
+  assert.match(a.text(), /liées à un objectif/);
+  assert.ok(!a.$("[data-act=plr]"));
+  a.click("[data-act=plk]");
+  assert.doesNotMatch(a.text(), /Journée chargée/);
+  assert.ok(a.state().tasks.every((t) => t.date == day(0)));
+}));
