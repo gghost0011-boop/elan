@@ -112,3 +112,9 @@ test("la pause entre tâches liées décale l’heure de départ", () => withApp
   a.click("[data-act=done][data-id='3000']");
   assert.equal(a.state().tasks.find((t) => t.id === 3001).start, "10:10");
 }));
+
+test("bilan du soir : « Écrire dans le journal » ouvre le journal et place le curseur dans la zone de texte", () => withApp({ state: { tasks: [{ id: 3000, title: "Lire", start: "09:00", dur: 30, pri: 2, date: day(0), st: "" }], tpls: [], ob: 1 } }, async (a) => {
+  a.w.document.body.insertAdjacentHTML("beforeend", '<button id="xmvb" data-act="mvb">');
+  a.click("#xmvb");
+  assert.ok(a.$("#jrn"), "la zone de texte du journal doit être affichée");
+}));
