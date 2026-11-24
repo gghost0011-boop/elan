@@ -68,7 +68,7 @@ function xTop(){
 function xBil(){return wrCard()}
 function xSet(){return'<div class="card"><b>⟦Accessibilité⟧</b><br><label for="fs">⟦Taille du texte⟧</label> <select id="fs">'+[["Normale"],["Grande"],["Très grande"]].map(function(x,i){return'<option value="'+i+'"'+((S.fs||0)==i?" selected":"")+'>⟦'+x[0]+'⟧</option>'}).join("")+'</select><br><a href="privacy.html">⟦Confidentialité⟧</a></div>'}
 function xHTML(){return obHTML()+wrSheet()}
-function xBusy(){return!!(wro||(view=="d"&&obNeed()))}
+function xBusy(){var f=document.activeElement;return!!((f&&f.id=="jrn")||wro||(view=="d"&&obNeed()))}
 function xAfter(){
   document.documentElement.style.fontSize=[100,112,125][S.fs||0]+"%";
   var p=document.getElementById("pv"),n=document.getElementById("nx");
