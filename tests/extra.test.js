@@ -220,3 +220,71 @@ test("raccourcis d’icône : le manifeste déclare ajouter et maintenant", () =
   const m = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "manifest.webmanifest"), "utf8"));
   assert.deepEqual(m.shortcuts.map((s) => s.url), ["./?add=1", "./?now=1"]);
 });
+
+test("tâches d’hier non faites : proposées dans « En retard », sans lien avec un objectif", () => withApp({ state: { tasks: [
+  task({ id: 11, title: "Ranger", date: day(-1), start: "10:00" }),
+  task({ id: 12, title: "Appeler", date: day(-1), start: "11:00" }),
+  task({ id: 13, title: "Payer", date: day(-2), start: "12:00" }),
+  task({ id: 14, title: "Fait hier", date: day(-1), st: "done", at: "09:30" }),
+  task({ id: 15, title: "Répétée", date: day(-1), tp: "x" }),
+], tpls: [], ob: 1 } }, async (a) => {
+  assert.match(a.text(), /En retard \(3\)/);
+  a.click("[data-act=odt]");
+  assert.ok(a.text().includes("Ranger") && !a.text().includes("Fait hier"));
+  a.click("[data-act=od][data-k=mv][data-id='11']");
+  assert.equal(a.state().tasks.find((t) => t.id == 11).date, day(0));
+  a.click("[data-act=od][data-k=dn][data-id='12']");
+  assert.equal(a.state().tasks.find((t) => t.id == 12).st, "done");
+  a.click("[data-act=od][data-k=ig][data-id='13']");
+  assert.equal(a.state().tasks.find((t) => t.id == 13).st, "stop");
+}));
+
+test("sans heure : une tâche sans horaire va dans « Sans heure précise », puis se place dans un créneau libre", () => withApp({ state: { tasks: [task({ id: 21, title: "Bloc", start: "09:00", dur: 600 })], tpls: [], ob: 1 } }, async (a) => {
+  a.$("#qa").value = "Appeler le dentiste";
+  a.click("[data-act=qa]");
+  await new Promise((r) => setTimeout(r, 120));
+  assert.equal(a.state().nt.length, 1);
+  assert.ok(!a.state().tasks.some((t) => /dentiste/.test(t.title)));
+  assert.match(a.text(), /Sans heure précise \(1\)/);
+  a.click("[data-act=ntp]");
+  const t = a.state().tasks.find((x) => /dentiste/.test(x.title));
+  assert.ok(t, "placée");
+  assert.ok(t.start >= "19:00", "après le bloc 9h-19h : " + t.start);
+  assert.equal(a.state().nt.length, 0);
+}));
+
+test("sans heure : ✓ la compte comme faite", () => withApp({ state: { tasks: [], tpls: [], ob: 1, nt: [{ id: 31, title: "Payer", dur: 15, date: day(0) }] } }, async (a) => {
+  a.click("[data-act=ntd]");
+  assert.equal(a.state().nt.length, 0);
+  assert.equal(a.state().tasks.find((t) => t.title == "Payer").st, "done");
+}));
+
+test("planifier ma journée : propose de reporter les moins prioritaires quand ça déborde", () => withApp({ state: { tasks: [
+  task({ id: 41, title: "Gros projet", start: "10:30", dur: 300, pri: 1 }),
+  task({ id: 42, title: "Ménage", start: "16:00", dur: 240, pri: 3 }),
+  task({ id: 43, title: "Lecture", start: "20:00", dur: 240, pri: 3 }),
+], tpls: [], ob: 1 } }, async (a) => {
+  assert.match(a.text(), /Journée chargée/);
+  a.click("[data-act=plr]");
+  const s = a.state().tasks, g = s.find((t) => t.id == 41);
+  assert.equal(g.date, day(0));
+  assert.ok(s.filter((t) => t.date == day(1)).length >= 1);
+  assert.doesNotMatch(a.text(), /Journée chargée/);
+}));
+
+test("planifier ma journée : rien si la journée tient, et « Garder tel quel » la masque", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  assert.doesNotMatch(a.text(), /Journée chargée/);
+}));
+
+test("import : une tâche par ligne, avec ou sans heure", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  a.click("[data-act=opt]");
+  a.click("[data-act=imo]");
+  a.$("#iml").value = "Appeler Marc 14h 30 min\nCourses\n\nRanger 16h";
+  a.click("[data-act=img]");
+  await new Promise((r) => setTimeout(r, 120));
+  const s = a.state();
+  const m = s.tasks.find((t) => /Marc/.test(t.title));
+  assert.equal(m.start, "14:00"); assert.equal(m.dur, 30);
+  assert.ok(s.tasks.find((t) => t.title == "Ranger" && t.start == "16:00"));
+  assert.deepEqual(s.nt.map((q) => q.title), ["Courses"]);
+}));
