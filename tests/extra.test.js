@@ -130,3 +130,93 @@ test("démo : données d’exemple séparées, bannière et sortie ; les vraies 
     assert.match(a.text(), /Bilan de la semaine/);
   });
 });
+
+test("corbeille : une tâche supprimée se restaure, et « Annuler » ne laisse rien dans la corbeille", () => withApp({
+  state: { tasks: [task({ id: 3000, title: "À jeter" }), task({ id: 3001, title: "Autre" })], tpls: [], ob: 1 },
+}, async (a) => {
+  a.click("[data-act=open][data-id='3000']"); a.click("[data-act=del][data-id='3000']");
+  assert.equal(a.state().tasks.length, 1);
+  assert.equal(a.state().trash.length, 1);
+  a.click("[data-act=opt]"); a.click("[data-act=tro]");
+  assert.match(a.text(), /À jeter/);
+  a.click("[data-act=trr]");
+  assert.equal(a.state().tasks.length, 2);
+  assert.equal(a.state().trash.length, 0);
+  a.click("[data-act=trx]");
+  a.click("[data-act=open][data-id='3001']"); a.click("[data-act=del][data-id='3001']");
+  a.click("#toast");
+  assert.equal(a.state().tasks.length, 2);
+  assert.equal(a.state().trash.length, 0);
+}));
+
+test("corbeille : les tâches de plus de 30 jours ne sont plus proposées", () => withApp({
+  state: { tasks: [task()], tpls: [], ob: 1, trash: [task({ id: 1, title: "Vieille", dl: Date.now() - 40 * 864e5 }), task({ id: 2, title: "Récente", dl: Date.now() - 2 * 864e5 })] },
+}, async (a) => {
+  a.click("[data-act=opt]"); a.click("[data-act=tro]");
+  assert.match(a.text(), /Récente/);
+  assert.doesNotMatch(a.text(), /Vieille/);
+}));
+
+test("réglages : guide d’installation pour l’appareil, avec la limite des rappels", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  a.click("[data-act=gear], .gear");
+  assert.match(a.text(), /Installer l’app/);
+  assert.match(a.text(), /icône d’installation dans la barre d’adresse/);
+  assert.match(a.text(), /Les rappels ne sont pas garantis/);
+}));
+
+test("sauvegarde : utilise la feuille de partage quand elle existe, et ne marque « sauvegardé » qu’après le partage", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  let shared = null;
+  a.w.navigator.canShare = () => true;
+  a.w.navigator.share = (d) => { shared = d; return Promise.resolve(); };
+  a.click("[data-act=gear], .gear");
+  a.click("[data-act=bk]");
+  await new Promise((r) => setTimeout(r, 20));
+  assert.ok(shared && shared.files[0].name.startsWith("elan-sauvegarde-"));
+  assert.ok(a.state().bk);
+}));
+
+test("ajout rapide : « Appeler Marc 14h 30 min » crée la tâche avec l’heure et la durée", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  const i = a.$("#qa"); assert.ok(i, "la barre d’ajout rapide doit exister");
+  i.value = "Appeler Marc 14h 45 min";
+  a.click("[data-act=qa]");
+  await new Promise((r) => setTimeout(r, 120));
+  const t = a.state().tasks.find((x) => /Marc/.test(x.title));
+  assert.ok(t, "tâche créée");
+  assert.equal(t.start, "14:00"); assert.equal(t.dur, 45); assert.equal(t.date, day(0));
+}));
+
+test("mode doux : cache les séries et change le vocabulaire de retard", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  a.click("[data-act=gear], .gear");
+  assert.match(a.text(), /Mode doux/);
+  a.click("[data-act=soft]");
+  assert.equal(a.state().soft, 1);
+  assert.ok(a.w.document.body.classList.contains("soft"));
+  a.click("[data-act=soft]");
+  assert.ok(!a.state().soft);
+}));
+
+test("bulles d’aide : affichées une fois puis mémorisées", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  const h = a.w.tipHTML("rt");
+  assert.match(h, /suite de tâches enchaînées/);
+  a.w.document.body.insertAdjacentHTML("beforeend", h);
+  a.click("[data-act=tipx]");
+  assert.equal(a.state().tips.rt, 1);
+  assert.equal(a.w.tipHTML("rt"), "");
+}));
+
+test("bilan : conseils vides tant qu’il y a moins de 12 tâches", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  assert.match(a.w.insHTML(), /Continue quelques jours/);
+}));
+
+test("bilan : détecte le meilleur moment de la journée", () => {
+  const ts = []; let id = 5000;
+  for (let k = 1; k <= 7; k++) { ts.push(task({ id: id++, date: day(-k), start: "09:00", st: "done" })); ts.push(task({ id: id++, date: day(-k), start: "21:00", st: k < 2 ? "done" : "" })); }
+  return withApp({ state: { tasks: ts, tpls: [], ob: 1 } }, async (a) => {
+    assert.match(a.w.insHTML(), /meilleur moment : le matin/);
+  });
+});
+
+test("raccourcis d’icône : le manifeste déclare ajouter et maintenant", () => {
+  const m = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "manifest.webmanifest"), "utf8"));
+  assert.deepEqual(m.shortcuts.map((s) => s.url), ["./?add=1", "./?now=1"]);
+});
