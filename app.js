@@ -22,7 +22,6 @@ function opts(a,sel,lab){return a.map(function(v){return'<option value="'+v+'"'+
 function nowHM(){var n=new Date();return fmt(n.getHours()*60+n.getMinutes())}
 function toast(x,cb){var t=document.getElementById("toast");t.textContent=mk(x);t.className="on"+(cb?" cb":"");t.onclick=cb?function(){cb();t.className=""}:null;clearTimeout(toast.h);toast.h=setTimeout(function(){t.className=""},cb?8000:5000)}
 var STY={elan:["Élan","#f1f5fb","#ffffff","#d9e3f1","#1769d1","#0a1430","#132248","#243566","#5fd0ff","#06203a"],
-classic:["Classique"],
 ocean:["Océan","#eef6f6","#fff","#d3e4e4","#0e8a8a","#0f1a1b","#172526","#264041","#3cc4c4","#062222"],
 forest:["Forêt","#f1f5ee","#fff","#dbe5d4","#2e7d46","#121a14","#1a251d","#2a3b2f","#5cc47d","#07210f"],
 twilight:["Crépuscule","#f4f1f8","#fff","#e1daec","#7048c8","#17141f","#211d2c","#342d45","#a98bff","#1a0d3b"],
