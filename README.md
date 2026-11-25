@@ -70,7 +70,7 @@ Ouvrir le lien sur un téléphone, puis « Ajouter à l'écran d'accueil ».
 | Rendu | Gabarits HTML et délégation d'événements (`data-act`), sans framework |
 | Internationalisation | Textes balisés dans le code, dictionnaire par langue et repli sur l'anglais ; bascule `dir="rtl"` pour l'arabe |
 | Thèmes | Variables CSS : 7 styles combinés à clair, sombre ou automatique |
-| Tests | 79 tests automatisés (`node:test` et jsdom) avec une horloge figée, lancés à chaque envoi par GitHub Actions |
+| Tests | 81 tests automatisés (`node:test` et jsdom) avec une horloge figée, lancés à chaque envoi par GitHub Actions |
 | Poids | Environ 200 Ko au total, aucune dépendance à l'exécution |
 
 Quelques points de conception :

@@ -156,16 +156,20 @@ function dayHTML(td){
   if(!l.length)h+='<div class="mut" style="text-align:center;padding:20px 0">⟦Aucune tâche à afficher.⟧</div>';
   else if(tl)h+=tlHTML(l);
   else{
-    var isT=cur==td&&!fc&&!q,items=[],dnT=[],last="",nowDone=false;
-    l.forEach(function(t){if(t.gl&&!sel&&goalOf(t.gl)){if(!gdn[t.gl]){gdn[t.gl]=1;items.push({g:t.gl,s:mins(t.start)})}}else if(t.st=="done"&&!sel)dnT.push(t);else items.push({t:t,s:mins(t.start)})});
-    var grp=items.length>=5,pend=l.filter(function(t){return!t.st&&mins(t.start)+(t.dur||5)>nowM}).length,
+    var isT=cur==td&&!fc&&!q,items=[],dnT=[],dnG=[],last="",nowDone=false,per=function(s){return s<300?"Nuit":s<720?"Matin":s<1080?"Après-midi":"Soir"},
+      flexOpen=function(id){return cur==td&&S.tpls.some(function(x){return x.gl==id&&x.wk&&(!x.until||x.until>=td)&&!S.tasks.some(function(y){return y.tp==x.id&&y.date==td&&y.st=="done"})})},
+      gdone=function(id){var ts=l.filter(function(t){return t.gl==id});return ts.length>0&&ts.every(function(t){return t.st=="done"})&&!flexOpen(id)};
+    l.forEach(function(t){if(t.gl&&!sel&&goalOf(t.gl)){if(!gdn[t.gl]){gdn[t.gl]=1;var gi={g:t.gl,s:mins(t.start)};if(gdone(t.gl))dnG.push(gi);else items.push(gi)}}else if(t.st=="done"&&!sel)dnT.push(t);else items.push({t:t,s:mins(t.start)})});
+    var grp=items.length+dnT.length+dnG.length>=5,pend=l.filter(function(t){return!t.st&&mins(t.start)+(t.dur||5)>nowM}).length,
     nowLine='<div class="nowl"><span>⟦Maintenant⟧ · '+fmt(nowM)+' · ⟦'+(pend==1?"{0} restante":"{0} restantes")+"|"+pend+"⟧</span></div>";
-    items.forEach(function(it){var g=it.s<300?"Nuit":it.s<720?"Matin":it.s<1080?"Après-midi":"Soir";
+    items.forEach(function(it){var g=per(it.s);
       if(isT&&!nowDone&&it.s>nowM){h+=nowLine;nowDone=true}
       if(grp&&g!=last){h+='<div class="grp">⟦'+g+'⟧</div>';last=g}
       h+=it.g?ggHTML(it.g,l,all,td,nowM):cardHTML(it.t,all,td,nowM)});
     if(isT&&!nowDone&&items.length)h+=nowLine;
-    if(dnT.length)h+='<button class="optb" data-act="dnt">✓ ⟦Terminées⟧ ('+dnT.length+') '+(dnOpen?"▴":"▾")+'</button>'+(dnOpen?dnT.map(function(t){return cardHTML(t,all,td,nowM)}).join(""):"")}
+    var dn=dnT.map(function(t){return{t:t,s:mins(t.start)}}).concat(dnG).sort(function(x,y){return x.s-y.s});
+    if(dn.length){h+='<button class="optb" data-act="dnt">✓ ⟦Terminées⟧ ('+dn.length+') '+(dnOpen?"▴":"▾")+'</button>';
+      if(dnOpen){var ld="";dn.forEach(function(it){var g=per(it.s);if(grp&&g!=ld){h+='<div class="grp">⟦'+g+'⟧</div>';ld=g}h+=it.g?ggHTML(it.g,l,all,td,nowM):cardHTML(it.t,all,td,nowM)})}}}
   if(cur==td&&!sel&&!fc&&!q)(S.goals||[]).forEach(function(g){if(!(gdn&&gdn[g.id])&&g.date>=td&&!g.pz&&S.tpls.some(function(t){return t.gl==g.id&&t.wk}))h+=ggHTML(g.id,l,all,td,nowM)});
   if(S.clip&&S.clip.length)h+='<div class="tools"><button data-act="paste">⟦Coller ({0})|'+S.clip.length+'⟧</button><button data-act="clip0" aria-label="⟦Annuler la copie⟧">✕</button></div>';
   h+='<div class="row2">'+jrHTML(0)+'<button class="optb" data-act="opt">⟦Options⟧ '+(opt?"▴":"▾")+'</button></div>'+jrHTML(1);
@@ -239,7 +243,7 @@ document.addEventListener("click",function(e){
   else if(a=="shift"&&t){var k2=b.dataset.k;t.start=k2=="eve"?hhmm(Math.max(mins(t.start),1200)):hhmm(Math.min(1439,mins(t.start)+ +k2));opened=null;save();toast("⟦Heure modifiée : {0}|"+fmt(mins(t.start))+"⟧")}
   else if(a=="dat"&&t){var def=t.dur?hhmm(mins(t.start))+"-"+hhmm((mins(t.start)+t.dur)%1440):hhmm(new Date().getHours()*60+new Date().getMinutes()),hv=prompt(tr("Heures réelles (début-fin, ex. 01:00-11:37)"),def),ms=hv?hv.match(/(\d{1,2})\s*[h:]\s*(\d{2})?/g):null;if(!ms)return;var pt=ms.map(function(x){var m2=/(\d{1,2})\s*[h:]\s*(\d{2})?/.exec(x);return Math.min(23,+m2[1])*60+(+m2[2]||0)});resume(t);t.st="done";t.why="";if(pt.length>1){t.as=hhmm(pt[0]);t.ae=hhmm(pt[1]);t.at=fmt(pt[1])}else{delete t.as;delete t.ae;t.at=fmt(pt[0])}opened=null;afterDone(t);save()}
   else if(a=="rest"){S.rest=S.rest||{};if(S.rest[cur])delete S.rest[cur];else S.rest[cur]=1;save()}
-  else if(a=="gflex"){var tp=S.tpls.filter(function(x){return x.id==id})[0];if(tp){var nm2=new Date().getHours()*60+new Date().getMinutes();S.tasks.push({id:uid(),title:tp.title,start:hhmm(Math.floor(nm2/5)*5),dur:tp.dur,pri:tp.pri||2,date:iso(new Date()),st:"done",at:nowHM(),why:"",tp:tp.id,gl:tp.gl});var gq2=goalOf(tp.gl);if(gq2&&gq2.target>0&&tp.q){var qv2=parseFloat(prompt(tr(gq2.mode=="value"?"Valeur mesurée ({0}) ?":"Quantité réalisée ({0}) ?").replace("{0}",gq2.unit||"")));if(qv2>0)gq2.log.push({d:iso(new Date()),n:qv2})}save()}}
+  else if(a=="gflex"){var tp=S.tpls.filter(function(x){return x.id==id})[0];if(tp&&S.tasks.some(function(y){return y.tp==tp.id&&y.date==iso(new Date())&&y.st=="done"}))return;if(tp){var nm2=new Date().getHours()*60+new Date().getMinutes();S.tasks.push({id:uid(),title:tp.title,start:hhmm(Math.floor(nm2/5)*5),dur:tp.dur,pri:tp.pri||2,date:iso(new Date()),st:"done",at:nowHM(),why:"",tp:tp.id,gl:tp.gl});var gq2=goalOf(tp.gl);if(gq2&&gq2.target>0&&tp.q){var qv2=parseFloat(prompt(tr(gq2.mode=="value"?"Valeur mesurée ({0}) ?":"Quantité réalisée ({0}) ?").replace("{0}",gq2.unit||"")));if(qv2>0)gq2.log.push({d:iso(new Date()),n:qv2})}save()}}
   else if(a=="gpz"){var gp2=goalOf(id),td3=iso(new Date());if(gp2.pz){(gp2.pauses=gp2.pauses||[]).push({a:gp2.pz,b:addd(td3,-1)});delete gp2.pz;Object.keys(S.gen).forEach(function(d){if(d>=td3)delete S.gen[d]})}else{gp2.pz=td3;S.tasks=S.tasks.filter(function(x){return!(x.gl==gp2.id&&x.date>=td3&&!x.st)})}save()}
   else if(a=="gcoach"){var pr2=gcoachp(goalOf(id));(navigator.clipboard?navigator.clipboard.writeText(pr2):Promise.reject()).then(function(){toast("⟦Résumé copié : colle-le dans Claude pour avoir des conseils.⟧")},function(){prompt(tr("Copie ce texte :"),pr2)});return}
   else if(a=="grestart"){var g3=goalOf(id);gf={id:null,why:g3.why||"",type:g3.type||"free",title:g3.title,date:addd(iso(new Date()),Math.max(7,dbt(g3.start,g3.date))),target:g3.target||"",unit:g3.unit||"",parent:g3.parent||"",auto:true,mode:g3.mode||"sum",vs:g3.vs||"",ms:[],acts:g3.acts.map(function(q){return{on:1,title:q.title,start:q.start,dur:q.dur,wk:q.wk||0,q:q.q||0,days:(q.days||[]).slice()}})};goalSubmit();toast("⟦Objectif relancé⟧")}
