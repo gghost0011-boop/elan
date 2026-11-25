@@ -186,6 +186,8 @@ test("un groupe d’objectif dont toutes les tâches sont faites affiche ✓", (
     tasks: [task({ title: "Vocabulaire", st: "done", at: "18h10", tp: 11, gl: 1 }), task({ title: "Écoute", start: "18:30", st: "done", at: "18h40", tp: 11, gl: 1 })],
   }),
 }, async (a) => {
+  assert.match(a.text(), /Terminées \(1\)/);
+  a.click("[data-act=dnt]");
   const g = a.$(".gg.ok");
   assert.ok(g);
   assert.match(g.textContent, /✓/);

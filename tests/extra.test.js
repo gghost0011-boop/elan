@@ -411,3 +411,29 @@ test("traductions : chaque texte anglais existe aussi en portugais, chinois, hin
 test("traductions : l’app s’affiche en portugais et en chinois", () => withApp({ lang: "pt-BR", state: { tasks: [task({ id: 5, start: "10:30", dur: 600 }), task({ id: 6, start: "21:00", dur: 300 })], tpls: [], ob: 1 } }, async (a) => {
   assert.match(a.text(), /Dia carregado/);
 }));
+
+const gTpl = (o = {}) => ({ id: 11, title: "Bosser 1h", dur: 60, pri: 2, wk: 6, gl: 1, since: day(-5), until: day(60), days: [], ...o });
+const gGoal = () => ({ id: 1, title: "Dev", date: day(60), start: day(-5), target: 0, unit: "", type: "lang", log: [], acts: [] });
+
+test("« Fait aujourd’hui » ne crée qu’une seule tâche par jour, même si on appuie deux fois", () => withApp({ state: { tasks: [], tpls: [gTpl()], goals: [gGoal()], gen: {}, ob: 1 } }, async (a) => {
+  a.click("[data-act=gflex]");
+  assert.equal(a.state().tasks.filter((t) => t.tp == 11).length, 1);
+  assert.ok(a.$("[data-act=gflex]") === null || a.$("[data-act=gflex]") === undefined, "le bouton disparaît une fois fait");
+  a.w.document.body.insertAdjacentHTML("beforeend", '<button id="zz" data-act="gflex" data-id="11"></button>');
+  a.click("#zz");
+  assert.equal(a.state().tasks.filter((t) => t.tp == 11).length, 1, "pas de doublon");
+}));
+
+test("un objectif terminé descend sous « Terminées », et les repères Matin / Après-midi / Soir restent", () => withApp({ state: { tasks: [
+  task({ id: 301, title: "Étude", start: "08:00", dur: 60 }),
+  task({ id: 302, title: "Projet", start: "13:00", dur: 60 }),
+  task({ id: 303, title: "Appel", start: "19:00", dur: 30 }),
+  task({ id: 304, title: "Voc", start: "18:00", st: "done", at: "18h10", tp: 11, gl: 1 }),
+  task({ id: 305, title: "Fait", start: "09:00", st: "done", at: "09h30" }),
+], tpls: [gTpl({ wk: 0, days: [0, 1, 2, 3, 4, 5, 6] })], goals: [gGoal()], gen: {}, ob: 1 } }, async (a) => {
+  assert.match(a.text(), /Terminées \(2\)/);
+  assert.match(a.text(), /Matin/); assert.match(a.text(), /Soir/);
+  assert.ok(!a.$(".gg.ok"), "l’objectif terminé n’est plus dans la liste du jour");
+  a.click("[data-act=dnt]");
+  assert.ok(a.$(".gg.ok"));
+}));
