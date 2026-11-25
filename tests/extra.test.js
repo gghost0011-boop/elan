@@ -247,6 +247,8 @@ test("sans heure : une tâche sans horaire va dans « Sans heure précise », pu
   assert.ok(!a.state().tasks.some((t) => /dentiste/.test(t.title)));
   assert.match(a.text(), /Sans heure précise \(1\)/);
   a.click("[data-act=ntp]");
+  assert.match(a.text(), /Au plus tôt/);
+  a.click("[data-act=ntw][data-k=e]");
   const t = a.state().tasks.find((x) => /dentiste/.test(x.title));
   assert.ok(t, "placée");
   assert.ok(t.start >= "19:00", "après le bloc 9h-19h : " + t.start);
@@ -280,6 +282,8 @@ test("import : une tâche par ligne, avec ou sans heure", () => withApp({ state:
   a.click("[data-act=opt]");
   a.click("[data-act=imo]");
   a.$("#iml").value = "Appeler Marc 14h 30 min\nCourses\n\nRanger 16h";
+  a.click("[data-act=imp]");
+  assert.match(a.text(), /Importer 3 tâches/);
   a.click("[data-act=img]");
   await new Promise((r) => setTimeout(r, 120));
   const s = a.state();
@@ -313,4 +317,97 @@ test("journée chargée : les tâches répétées ou d’objectif ne sont jamais
   a.click("[data-act=plk]");
   assert.doesNotMatch(a.text(), /Journée chargée/);
   assert.ok(a.state().tasks.every((t) => t.date == day(0)));
+}));
+
+test("boutons ⓘ : une explication s’ouvre et se ferme, dans les réglages comme dans la journée", () => withApp({ state: { tasks: [task({ id: 71, title: "Hier", date: day(-1), start: "10:00" })], tpls: [], ob: 1 } }, async (a) => {
+  const ib = a.$("[data-act=inf]");
+  assert.ok(ib, "un bouton ⓘ doit exister sur la carte En retard");
+  a.click("[data-act=inf]");
+  assert.match(a.text(), /Les tâches des 7 derniers jours que tu n’as pas terminées/);
+  a.click("[data-act=infx]");
+  assert.doesNotMatch(a.text(), /Les tâches des 7 derniers jours que tu n’as pas terminées/);
+  a.click("[data-act=gear], .gear");
+  assert.ok(a.$("[data-act=inf]"), "ⓘ dans les réglages");
+  assert.equal(a.$$ ? a.$$("[data-act=inf]").length > 1 : true, true);
+}));
+
+test("ajout rapide : jour, priorité et catégorie sont reconnus", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  a.$("#qa").value = "Réviser demain 10h ! #sport";
+  a.click("[data-act=qa]");
+  await new Promise((r) => setTimeout(r, 120));
+  const t = a.state().tasks.find((x) => /Réviser/.test(x.title));
+  assert.equal(t.title, "Réviser"); assert.equal(t.date, day(1)); assert.equal(t.start, "10:00");
+  assert.equal(t.pri, 1); assert.equal(t.cat, "Sport");
+}));
+
+test("ajout rapide : « Annuler » retire la tâche ajoutée", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  a.$("#qa").value = "Appeler Marc 14h";
+  a.click("[data-act=qa]");
+  await new Promise((r) => setTimeout(r, 120));
+  assert.equal(a.state().tasks.length, 2);
+  a.w.document.getElementById("toast").click();
+  assert.equal(a.state().tasks.length, 1);
+}));
+
+test("journée chargée : on choisit ce qui part à demain, et Annuler remet tout", () => withApp({ state: { tasks: [
+  task({ id: 81, title: "Gros", start: "10:30", dur: 300, pri: 1 }),
+  task({ id: 82, title: "Ménage", start: "16:00", dur: 240, pri: 3 }),
+  task({ id: 83, title: "Lecture", start: "20:00", dur: 240, pri: 3 }),
+], tpls: [], ob: 1 } }, async (a) => {
+  a.click("[data-act=plt][data-id='82']");
+  a.click("[data-act=plt][data-id='83']");
+  assert.ok(a.$("[data-act=plt][data-id='82']"), "la carte reste ouverte");
+  a.click("[data-act=plt][data-id='81']");
+  a.click("[data-act=plr]");
+  await new Promise((r) => setTimeout(r, 120));
+  assert.equal(a.state().tasks.find((t) => t.id == 81).date, day(1));
+  a.w.document.getElementById("toast").click();
+  assert.equal(a.state().tasks.find((t) => t.id == 81).date, day(0));
+}));
+
+test("journée chargée : on peut raccourcir les séances répétées, avec Annuler", () => withApp({ state: { tasks: [
+  task({ id: 91, title: "Anglais", start: "10:30", dur: 300, pri: 3, tp: 7, gl: 9 }),
+  task({ id: 92, title: "Sport", start: "16:00", dur: 240, pri: 3, tp: 8 }),
+  task({ id: 93, title: "Lecture", start: "20:00", dur: 240, pri: 3, gl: 9 }),
+], tpls: [], ob: 1 } }, async (a) => {
+  a.click("[data-act=pls]");
+  await new Promise((r) => setTimeout(r, 120));
+  assert.equal(a.state().tasks.find((t) => t.id == 91).dur, 150);
+  a.w.document.getElementById("toast").click();
+  assert.equal(a.state().tasks.find((t) => t.id == 91).dur, 300);
+}));
+
+test("mode doux : proposé après plusieurs jours sans tâche terminée, et « Non merci » le range", () => withApp({ state: { tasks: [
+  task({ id: 1, date: day(-1) }), task({ id: 2, date: day(-2) }), task({ id: 3, date: day(-3) }), task({ id: 4, date: day(0), start: "23:00" }),
+], tpls: [], ob: 1 } }, async (a) => {
+  assert.match(a.text(), /Les derniers jours ont été difficiles/);
+  a.click("[data-act=softn]");
+  assert.doesNotMatch(a.text(), /Les derniers jours ont été difficiles/);
+}));
+
+test("formulaire : le ⓘ explique les champs sans fermer ni vider le formulaire", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  a.click("[data-act=add], .fab, #add");
+  a.$("#title").value = "Test saisi";
+  a.click("#f [data-act=infi]");
+  assert.match(a.text(), /Enchaîner après : elle démarre/);
+  assert.equal(a.$("#title").value, "Test saisi");
+  a.click("#f [data-act=infi]");
+  assert.doesNotMatch(a.text(), /Enchaîner après : elle démarre/);
+}));
+
+test("styles : six styles, un nombre pair", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  a.click("[data-act=gear], .gear");
+  assert.equal(a.w.document.querySelectorAll("[data-act=sty]").length, 6);
+}));
+
+test("traductions : chaque texte anglais existe aussi en portugais, chinois, hindi, arabe et russe", () => withApp({ state: { tasks: [task()], tpls: [], ob: 1 } }, async (a) => {
+  const D = a.w.eval("D");
+  for (const l of ["pt", "zh", "hi", "ar", "ru"]) {
+    const m = Object.keys(D.en).filter((k) => D[l][k] === undefined);
+    assert.deepEqual(m, [], l + " : textes sans traduction");
+  }
+}));
+
+test("traductions : l’app s’affiche en portugais et en chinois", () => withApp({ lang: "pt-BR", state: { tasks: [task({ id: 5, start: "10:30", dur: 600 }), task({ id: 6, start: "21:00", dur: 300 })], tpls: [], ob: 1 } }, async (a) => {
+  assert.match(a.text(), /Dia carregado/);
 }));

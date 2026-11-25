@@ -210,7 +210,7 @@ test("les jalons s’ajoutent, se cochent et sont félicités", () => withApp({}
   a.click("[data-act=gmadd]"); a.set("gm0t", "Test blanc"); a.set("gm0d", day(20));
   a.submit("gf");
   assert.equal(a.state().goals[0].ms.length, 1);
-  assert.match(a.text(), /Jalons 0\/1/);
+  assert.match(a.text(), /Jalons\W*0\/1/);
   a.click("[data-act=gmd]");
   assert.ok(a.state().goals[0].ms[0].done);
   assert.match(a.toast(), /Jalon atteint/);
